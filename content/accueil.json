@@ -1,0 +1,61 @@
+{
+  "sections": [
+    {
+      "type": "accrochage",
+      "surtitre": "Accrochage",
+      "titre": "La matière,\n*le noir,* la lumière.",
+      "texte": "Des huiles asphaltiques de 1997 aux séries de 2025, Rémy Pollet travaille la surface de la toile : matité et brillance, opacité et transparence.",
+      "oeuvres": [
+        "667",
+        "636",
+        "580",
+        "669"
+      ],
+      "lien_formats": true
+    },
+    {
+      "type": "catalogue",
+      "surtitre": "Publication",
+      "titre": "Le catalogue\n*des huiles*",
+      "texte": "La nouvelle édition de l'œuvre à l'huile de Rémy Pollet, à feuilleter en ligne page après page. Un exemplaire imprimé peut être demandé à l'atelier.",
+      "lien": "https://online.fliphtml5.com/ytcdo/qyjy/#p=1",
+      "libelle_bouton": "Feuilleter le catalogue",
+      "oeuvre": "631",
+      "exemplaire": true
+    },
+    {
+      "type": "citation",
+      "texte": "La grande sophistication de celui qui n'a pas besoin de paraître pour être.",
+      "auteur": "Benjamin Steinitz, galeriste"
+    },
+    {
+      "type": "parcours",
+      "surtitre": "Parcours",
+      "titre": "De Vevey à la toile asphaltique",
+      "texte": "Photographe et graphiste de formation, Rémy Pollet voit en 1990 un incendie détruire presque toute l'œuvre conservée à son atelier. Quand il reprend la peinture, le gris et le noir deviennent son territoire.",
+      "etapes": [
+        {
+          "annee": "1966",
+          "texte": "École des Arts et Métiers de Vevey, en Suisse."
+        },
+        {
+          "annee": "1972",
+          "texte": "Fonde son studio graphique et photographique."
+        },
+        {
+          "annee": "1990",
+          "texte": "Incendie de l'atelier, la nuit de la Saint-Sylvestre."
+        },
+        {
+          "annee": "1997",
+          "texte": "Les grandes huiles asphaltiques."
+        },
+        {
+          "annee": "2010",
+          "texte": "Premières encres de Chine."
+        }
+      ],
+      "lien_bio": true
+    }
+  ]
+}
