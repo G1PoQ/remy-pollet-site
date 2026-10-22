@@ -1,5 +1,5 @@
 # Configuration de l'administration (Pages CMS) du site de Rémy Pollet.
-# Chaque modification enregistrée dans l'administration met le site à jour en une à deux minutes.
+# Chaque modification enregistrée dans l'administration met le site à jour en une à deux minutes (hébergement Cloudflare Pages).
 
 media:
   - name: oeuvres
@@ -422,6 +422,10 @@ content:
           - { name: adresse, label: Adresse de l'atelier, type: text }
           - { name: visites, label: Visites, type: string, description: "Par exemple « Visites sur rendez-vous »." }
           - { name: instagram, label: Lien Instagram, type: string }
+          - name: cle_formulaire
+            label: Clé du formulaire de contact (Web3Forms)
+            type: string
+            description: "La clé reçue par e-mail de Web3Forms. Les messages envoyés depuis la page Contact arrivent à l'adresse liée à cette clé."
       - { name: pied_de_page, label: Mention en bas de page, type: string }
       - name: referencement
         label: Référencement (Google)
