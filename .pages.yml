@@ -1,5 +1,16 @@
-# Configuration de l'administration (Pages CMS) du site de Rémy Pollet.
-# Chaque modification enregistrée dans l'administration met le site à jour en une à deux minutes (hébergement Cloudflare Pages).
+# Administration (Pages CMS) du site de Rémy Pollet.
+# Chaque enregistrement met le site à jour en une à deux minutes (hébergement Cloudflare Pages).
+# Ce fichier ne se modifie que depuis GitHub (la page Settings de l'administration est masquée).
+
+settings:
+  hide: true
+  commit:
+    identity: user
+    templates:
+      create: "Ajout : {path}"
+      update: "Modification : {path}"
+      delete: "Suppression : {path}"
+      rename: "Renommage : {oldPath} -> {newPath}"
 
 media:
   - name: oeuvres
@@ -13,159 +24,174 @@ media:
     output: /media/images
     categories: [image]
 
+components:
+  cadrage:
+    type: select
+    options:
+      values:
+        - { name: haut, label: "Haut de la toile" }
+        - { name: haut-centre, label: "Entre le haut et le centre" }
+        - { name: centre, label: "Centre de la toile" }
+        - { name: centre-bas, label: "Entre le centre et le bas" }
+        - { name: bas, label: "Bas de la toile" }
+  choix_oeuvre:
+    type: reference
+    options:
+      collection: oeuvres
+      value: "{numero}"
+      label: "n° {numero} · {titre} · {annee}"
+      search: "numero,titre,serie"
+
 content:
-  - name: catalogue
-    label: Catalogue
-    type: group
-    items:
-      - name: oeuvres
-        label: Œuvres
-        type: collection
-        path: content/oeuvres
-        format: json
-        filename: "{fields.numero}-{fields.titre}.json"
-        view:
-          fields: [titre, annee, numero, serie]
-          primary: titre
-          sort: [annee, numero, titre]
-          search: [titre, numero, serie]
-          default:
-            sort: annee
-            order: desc
-        fields:
-          - name: titre
-            label: Titre
-            type: string
-            required: true
-          - name: numero
-            label: Numéro
-            type: string
-            required: true
-            description: "Le numéro de l'œuvre, par exemple 667. Il sert aussi à la retrouver dans les autres rubriques."
-          - name: annee
-            label: Année
-            type: number
-            required: true
-          - name: serie
-            label: Série
-            type: reference
-            description: "Laisser vide si l'œuvre n'appartient à aucune série."
-            options:
-              collection: series
-              value: "{nom}"
-              label: "{nom}"
-          - name: technique
-            label: Technique
-            type: select
-            options:
-              values: [Huile sur toile, Encre de Chine sur papier, Dessin, Autre]
-          - name: hauteur
-            label: Hauteur (cm)
-            type: number
-            required: true
-          - name: largeur
-            label: Largeur (cm)
-            type: number
-            required: true
-          - name: photo
-            label: Photo
-            type: image
-            required: true
-            description: "La photo du photographe peut être envoyée telle quelle : le fond blanc et le cartel sont retirés automatiquement."
-            options:
-              media: oeuvres
-          - name: disponibilite
-            label: Disponibilité
-            type: select
-            description: "Facultatif. Laisser vide pour ne rien afficher."
-            options:
-              values: [Disponible, Réservée, Vendue, Collection privée, Sur demande]
-          - name: texte
-            label: Texte sur l'œuvre
-            type: text
-            description: "Facultatif. Affiché sur la fiche de l'œuvre. Une ligne vide sépare deux paragraphes."
-          - name: masquer
-            label: Masquer du site
-            type: boolean
-            description: "Cochez pour retirer l'œuvre du site sans la supprimer."
+  - name: aide
+    label: "Mode d'emploi"
+    type: file
+    path: content/aide.json
+    format: json
+    operations:
+      delete: false
+    fields:
+      - { name: commencer, label: "Pour commencer", type: text, readonly: true }
+      - { name: ajouter, label: "Ajouter une œuvre", type: text, readonly: true }
+      - { name: retirer, label: "Corriger ou retirer une œuvre", type: text, readonly: true }
+      - { name: series, label: "Les séries", type: text, readonly: true }
+      - { name: accueil, label: "La page d'accueil", type: text, readonly: true }
+      - { name: textes, label: "Écrire un texte", type: text, readonly: true }
+      - { name: probleme, label: "En cas de doute", type: text, readonly: true }
 
-      - name: series
-        label: Séries
-        type: collection
-        path: content/series
-        format: json
-        filename: "{fields.nom}.json"
-        view:
-          fields: [nom, ordre, annees]
-          primary: nom
-          sort: [ordre, nom]
-          default:
-            sort: ordre
-            order: asc
-        fields:
-          - name: nom
-            label: Nom de la série
-            type: string
-            required: true
-            description: "Attention : si vous renommez une série, choisissez de nouveau la série sur ses œuvres."
-          - name: ordre
-            label: Ordre d'affichage
-            type: number
-            description: "1 pour la première série affichée, 2 pour la suivante, etc."
-          - name: annees
-            label: Années
-            type: string
-            description: "Par exemple « 2023 – 2025 ». Laisser vide pour les calculer à partir des œuvres."
-          - name: presentation
-            label: Image de présentation
-            type: reference
-            description: "L'œuvre dont un détail représente la série."
-            options:
-              collection: oeuvres
-              value: "{numero}"
-              label: "{titre} · {annee} · n° {numero}"
-              search: "titre,numero"
-          - name: cadrage
-            label: Cadrage du détail (0 à 100)
-            type: number
-            description: "Partie de la toile montrée : 0 = le haut, 50 = le centre, 100 = le bas."
-            options:
-              min: 0
-              max: 100
-          - name: description
-            label: Description
-            type: text
-            description: "Facultatif. Affichée sur le bandeau de la série."
+  - name: oeuvres
+    label: Œuvres
+    type: collection
+    path: content/oeuvres
+    format: json
+    filename: "{fields.numero}.json"
+    operations:
+      rename: false
+      delete: false
+    view:
+      fields: [numero, titre, serie, annee]
+      primary: numero
+      sort: [annee, numero, serie]
+      search: [numero, titre, serie]
+      default:
+        sort: annee
+        order: desc
+    fields:
+      - name: photo
+        label: Photo
+        type: image
+        required: true
+        description: "Envoyez la photo du photographe telle quelle : le fond blanc et le cartel sont retirés automatiquement."
+        options:
+          media: oeuvres
+      - name: numero
+        label: Numéro
+        type: string
+        required: true
+        description: "Le numéro inscrit sur le cartel. Exemple : 581."
+      - name: serie
+        label: Série
+        type: reference
+        description: "Choisissez dans la liste. Laissez vide si l'œuvre n'appartient à aucune série."
+        options:
+          collection: series
+          value: "{nom}"
+          label: "{nom}"
+      - name: annee
+        label: Année
+        type: number
+        required: true
+        description: "Exemple : 2025."
+        options:
+          min: 1950
+          max: 2100
+      - name: hauteur
+        label: Hauteur en cm
+        type: number
+        required: true
+        description: "Le premier chiffre du format. Pour 146 × 114, tapez 146."
+        options:
+          min: 1
+          max: 1000
+      - name: largeur
+        label: Largeur en cm
+        type: number
+        required: true
+        description: "Le second chiffre du format. Pour 146 × 114, tapez 114."
+        options:
+          min: 1
+          max: 1000
+      - name: titre
+        label: Titre (facultatif)
+        type: string
+        description: "Laissez vide pour reprendre le nom de la série."
+      - name: technique
+        label: Technique (facultatif)
+        type: select
+        description: "Laissez vide pour « Huile sur toile »."
+        options:
+          values: [Huile sur toile, Encre de Chine sur papier, Dessin, Autre]
+      - name: disponibilite
+        label: Disponibilité (facultatif)
+        type: select
+        description: "Laissez vide pour ne rien afficher sur le site."
+        options:
+          values: [Disponible, Réservée, Vendue, Collection privée, Sur demande]
+      - name: texte
+        label: Texte sur l'œuvre (facultatif)
+        type: text
+        description: "Affiché sur la fiche de l'œuvre. Une ligne vide sépare deux paragraphes."
+      - name: masquer
+        label: Masquer du site
+        type: boolean
+        description: "Cochez pour retirer l'œuvre du site. Décochez pour la remettre. Rien n'est effacé."
 
+  - name: series
+    label: Séries
+    type: collection
+    path: content/series
+    format: json
+    filename: "{fields.nom}.json"
+    operations:
+      rename: false
+    view:
+      fields: [nom, ordre, annees]
+      primary: nom
+      sort: [ordre, nom]
+      default:
+        sort: ordre
+        order: asc
+    fields:
+      - name: nom
+        label: Nom de la série
+        type: string
+        required: true
+        description: "Évitez de renommer une série existante : ses œuvres ne la retrouveraient plus."
+      - name: presentation
+        label: Image de présentation
+        component: choix_oeuvre
+        description: "L'œuvre dont un détail représente la série."
+      - name: cadrage
+        label: Partie de la toile montrée
+        component: cadrage
+        description: "Laissez vide pour le centre."
+      - name: ordre
+        label: Position dans la liste
+        type: number
+        description: "1 pour la première série, 2 pour la suivante, etc."
+        options:
+          min: 1
       - name: annees
-        label: Images des années
-        type: file
-        path: content/annees.json
-        format: json
-        list: true
-        fields:
-          - name: annee
-            label: Année
-            type: string
-            required: true
-          - name: presentation
-            label: Image de présentation
-            type: reference
-            options:
-              collection: oeuvres
-              value: "{numero}"
-              label: "{titre} · {annee} · n° {numero}"
-              search: "titre,numero"
-          - name: cadrage
-            label: Cadrage du détail (0 à 100)
-            type: number
-            description: "0 = le haut de la toile, 50 = le centre, 100 = le bas."
-            options:
-              min: 0
-              max: 100
+        label: Années (facultatif)
+        type: string
+        description: "Par exemple « 2023 – 2025 ». Laissez vide pour les calculer à partir des œuvres."
+      - name: description
+        label: Description (facultatif)
+        type: text
+        description: "Affichée sur le bandeau de la série."
 
   - name: pages
-    label: Pages
+    label: Pages du site
     type: group
     items:
       - name: accueil
@@ -173,10 +199,12 @@ content:
         type: file
         path: content/accueil.json
         format: json
+        operations:
+          delete: false
         fields:
           - name: sections
             label: Sections de la page d'accueil
-            description: "Sous l'en-tête, dans l'ordre. Ajoutez, déplacez ou masquez des sections."
+            description: "Elles s'affichent sous l'en-tête, dans cet ordre. Vous pouvez changer leur ordre. Pour en enlever une sans la perdre, cochez « Masquer cette section »."
             type: block
             blockKey: type
             list:
@@ -185,45 +213,38 @@ content:
                 summary: "{type} · {titre}"
             blocks:
               - name: accrochage
-                label: Accrochage à l'échelle
+                label: "Accrochage à l'échelle"
                 fields:
                   - { name: surtitre, label: Petit titre, type: string }
-                  - { name: titre, label: Titre, type: text, description: "Entourez un mot d'astérisques pour l'écrire en italique : *le noir*. Un retour à la ligne est respecté." }
+                  - { name: titre, label: Titre, type: text, description: "Pour mettre un mot en italique, entourez-le d'astérisques : *le noir*." }
                   - { name: texte, label: Texte, type: text }
                   - name: oeuvres
-                    label: Œuvres accrochées (2 à 6)
+                    label: Œuvres accrochées (de 2 à 6)
                     type: reference
                     options:
                       collection: oeuvres
                       multiple: true
                       max: 6
                       value: "{numero}"
-                      label: "{titre} · {annee} · n° {numero}"
-                      search: "titre,numero"
+                      label: "n° {numero} · {titre} · {annee}"
+                      search: "numero,titre,serie"
                   - { name: lien_formats, label: "Afficher le lien « Comparer tous les formats »", type: boolean }
                   - { name: masquer, label: Masquer cette section, type: boolean }
               - name: catalogue
-                label: Catalogue / publication
+                label: "Catalogue / publication"
                 fields:
                   - { name: surtitre, label: Petit titre, type: string }
-                  - { name: titre, label: Titre, type: text, description: "Entourez un mot d'astérisques pour l'écrire en italique." }
+                  - { name: titre, label: Titre, type: text, description: "Pour mettre un mot en italique, entourez-le d'astérisques." }
                   - { name: texte, label: Texte, type: text }
                   - { name: lien, label: Lien vers le catalogue en ligne, type: string }
                   - { name: libelle_bouton, label: Texte du bouton, type: string }
                   - name: couverture
-                    label: Photo de la couverture
+                    label: Photo de la couverture (facultatif)
                     type: image
-                    description: "Facultatif. Sans photo, une couverture est composée avec l'œuvre choisie ci-dessous."
+                    description: "Sans photo, une couverture est composée avec l'œuvre choisie ci-dessous."
                     options:
                       media: images
-                  - name: oeuvre
-                    label: Œuvre pour la couverture
-                    type: reference
-                    options:
-                      collection: oeuvres
-                      value: "{numero}"
-                      label: "{titre} · {annee} · n° {numero}"
-                      search: "titre,numero"
+                  - { name: oeuvre, label: Œuvre pour la couverture, component: choix_oeuvre }
                   - { name: exemplaire, label: "Afficher « Demander un exemplaire »", type: boolean }
                   - { name: masquer, label: Masquer cette section, type: boolean }
               - name: citation
@@ -233,7 +254,7 @@ content:
                   - { name: auteur, label: Auteur, type: string }
                   - { name: masquer, label: Masquer cette section, type: boolean }
               - name: parcours
-                label: Parcours (fond sombre)
+                label: "Parcours (fond sombre)"
                 fields:
                   - { name: surtitre, label: Petit titre, type: string }
                   - { name: titre, label: Titre, type: text }
@@ -251,48 +272,48 @@ content:
                   - { name: lien_bio, label: "Afficher le lien « Lire la biographie »", type: boolean }
                   - { name: masquer, label: Masquer cette section, type: boolean }
               - name: texte
-                label: Texte libre (avec image)
+                label: "Texte libre (avec image)"
                 fields:
                   - { name: surtitre, label: Petit titre, type: string }
                   - { name: titre, label: Titre, type: text }
                   - { name: texte, label: Texte, type: text, description: "Une ligne vide sépare deux paragraphes." }
                   - name: image
-                    label: Image
+                    label: Image (facultatif)
                     type: image
                     options:
                       media: images
                   - name: fond
-                    label: Fond
+                    label: Couleur du fond
                     type: select
                     options:
                       values: [Clair, Gris, Sombre]
                   - { name: masquer, label: Masquer cette section, type: boolean }
               - name: oeuvres
-                label: Sélection d'œuvres
+                label: "Sélection d'œuvres"
                 fields:
                   - { name: titre, label: Titre, type: text }
                   - name: oeuvres
                     label: Œuvres choisies
                     type: reference
-                    description: "Laisser vide pour montrer les plus récentes."
+                    description: "Laissez vide pour montrer les plus récentes."
                     options:
                       collection: oeuvres
                       multiple: true
                       value: "{numero}"
-                      label: "{titre} · {annee} · n° {numero}"
-                      search: "titre,numero"
-                  - { name: nombre, label: Nombre d'œuvres récentes, type: number, description: "Utilisé si aucune œuvre n'est choisie. 3 par défaut." }
+                      label: "n° {numero} · {titre} · {annee}"
+                      search: "numero,titre,serie"
+                  - { name: nombre, label: Nombre d'œuvres récentes, type: number, description: "Utilisé si aucune œuvre n'est choisie. 3 si vide." }
                   - { name: masquer, label: Masquer cette section, type: boolean }
               - name: series
-                label: Les séries (images de présentation)
+                label: "Les séries (images de présentation)"
                 fields:
                   - { name: titre, label: Titre, type: text }
                   - { name: masquer, label: Masquer cette section, type: boolean }
               - name: expositions
-                label: Dernières expositions
+                label: "Dernières expositions"
                 fields:
                   - { name: titre, label: Titre, type: text }
-                  - { name: nombre, label: Nombre d'expositions, type: number, description: "4 par défaut." }
+                  - { name: nombre, label: Nombre d'expositions, type: number, description: "4 si vide." }
                   - { name: masquer, label: Masquer cette section, type: boolean }
 
       - name: biographie
@@ -300,32 +321,29 @@ content:
         type: file
         path: content/biographie.json
         format: json
+        operations:
+          delete: false
         fields:
           - { name: intro, label: Introduction, type: text }
           - name: etapes
-            label: Étapes
+            label: Étapes (dans l'ordre chronologique)
             type: object
             list:
               collapsible:
                 collapsed: true
                 summary: "{periode}"
             fields:
-              - { name: periode, label: Date ou période, type: string }
+              - { name: periode, label: Date ou période, type: string, description: "Exemple : 1972, ou « Années 1980 »." }
               - { name: texte, label: Texte, type: text }
-          - name: oeuvre
-            label: Œuvre affichée à côté
-            type: reference
-            options:
-              collection: oeuvres
-              value: "{numero}"
-              label: "{titre} · {annee} · n° {numero}"
-              search: "titre,numero"
+          - { name: oeuvre, label: Œuvre affichée à côté, component: choix_oeuvre }
 
       - name: expositions
         label: Expositions
         type: file
         path: content/expositions.json
         format: json
+        operations:
+          delete: false
         fields:
           - { name: intro, label: Introduction, type: text }
           - name: liste
@@ -336,101 +354,104 @@ content:
                 collapsed: true
                 summary: "{date} · {titre}"
             fields:
-              - { name: date, label: Date, type: string, description: "Par exemple « 3 – 25 oct. 2020 »." }
+              - { name: date, label: Date, type: string, description: "Exemple : « 3 – 25 oct. 2020 »." }
               - { name: titre, label: Titre, type: string }
-              - { name: lieu, label: Lieu, type: string }
+              - { name: lieu, label: Ville, type: string }
               - { name: organisateur, label: Galerie ou organisateur, type: string }
 
-  - name: reglages
-    label: Réglages du site
-    type: file
-    path: content/site.json
-    format: json
-    fields:
-      - { name: nom, label: Nom affiché, type: string, required: true }
-      - { name: sous_titre, label: Sous-titre de l'en-tête, type: string }
-      - name: entete
-        label: Toile de l'en-tête
-        type: object
+  - name: reglages_groupe
+    label: Réglages
+    type: group
+    items:
+      - name: reglages
+        label: Réglages du site
+        type: file
+        path: content/site.json
+        format: json
+        operations:
+          delete: false
         fields:
-          - name: oeuvre
-            label: Œuvre en fond
-            type: reference
-            options:
-              collection: oeuvres
-              value: "{numero}"
-              label: "{titre} · {annee} · n° {numero}"
-              search: "titre,numero"
-          - name: position
-            label: Partie de la toile montrée (0 à 100)
-            type: number
-            description: "0 = le haut, 50 = le centre, 100 = le bas. La couleur du texte s'adapte toute seule."
-            options:
-              min: 0
-              max: 100
-      - name: menu
-        label: Menu
-        type: object
-        description: "Dans l'ordre d'affichage."
-        list:
-          collapsible:
-            collapsed: true
-            summary: "{libelle}"
+          - { name: nom, label: Nom affiché, type: string, required: true }
+          - { name: sous_titre, label: Sous-titre de l'en-tête, type: string }
+          - name: entete
+            label: Toile de l'en-tête
+            type: object
+            fields:
+              - { name: oeuvre, label: Œuvre en fond, component: choix_oeuvre }
+              - { name: position, label: Partie de la toile montrée, component: cadrage, description: "La couleur du texte s'adapte toute seule à la toile." }
+          - name: contact
+            label: Coordonnées de l'atelier
+            type: object
+            fields:
+              - { name: email, label: E-mail, type: string }
+              - { name: telephone, label: Téléphone, type: string }
+              - { name: adresse, label: Adresse, type: text }
+              - { name: visites, label: Visites, type: string, description: "Exemple : « Visites sur rendez-vous »." }
+              - { name: instagram, label: Lien Instagram, type: string }
+              - { name: intro, label: Texte de la page Contact, type: text }
+              - { name: cle_formulaire, label: "Clé du formulaire (ne pas modifier)", type: string, description: "Clé Web3Forms : les messages de la page Contact arrivent à l'adresse liée à cette clé." }
+          - name: menu
+            label: Menu
+            type: object
+            description: "Les entrées du menu, dans l'ordre d'affichage."
+            list:
+              collapsible:
+                collapsed: true
+                summary: "{libelle}"
+            fields:
+              - { name: libelle, label: Texte affiché, type: string, required: true }
+              - name: cible
+                label: Page
+                type: select
+                options:
+                  values:
+                    - { name: accueil, label: Accueil }
+                    - { name: oeuvres, label: Œuvres }
+                    - { name: expositions, label: Expositions }
+                    - { name: biographie, label: Biographie }
+                    - { name: contact, label: Contact }
+                    - { name: lien, label: Lien vers un autre site }
+              - { name: lien, label: Adresse du lien, type: string, description: "Seulement pour « Lien vers un autre site »." }
+              - { name: bouton, label: Afficher comme un bouton encadré, type: boolean }
+          - name: polices
+            label: Polices
+            type: object
+            fields:
+              - name: titres
+                label: Police des titres
+                type: select
+                options:
+                  values:
+                    - { name: palatino, label: "Palatino (classique)" }
+                    - { name: cormorant, label: "Cormorant Garamond (fine, élégante)" }
+                    - { name: garamond, label: "EB Garamond (livre)" }
+                    - { name: caslon, label: "Libre Caslon (éditoriale)" }
+              - name: texte
+                label: Police du texte
+                type: select
+                options:
+                  values:
+                    - { name: hanken, label: "Hanken Grotesk (sobre)" }
+                    - { name: jost, label: "Jost (géométrique)" }
+                    - { name: source, label: "Source Sans (neutre)" }
+          - { name: pied_de_page, label: Mention en bas de page, type: string }
+          - name: referencement
+            label: Référencement (Google)
+            type: object
+            fields:
+              - { name: titre, label: Titre de la page, type: string }
+              - { name: description, label: Description, type: text }
+              - { name: visible_google, label: Visible sur Google, type: boolean, description: "À cocher au lancement définitif du site." }
+
+      - name: annees
+        label: Images des années
+        type: file
+        path: content/annees.json
+        format: json
+        list: true
+        operations:
+          delete: false
         fields:
-          - { name: libelle, label: Texte, type: string, required: true }
-          - name: cible
-            label: Page
-            type: select
-            options:
-              values:
-                - { name: accueil, label: Accueil }
-                - { name: oeuvres, label: Œuvres }
-                - { name: expositions, label: Expositions }
-                - { name: biographie, label: Biographie }
-                - { name: contact, label: Contact }
-                - { name: lien, label: Lien vers un autre site }
-          - { name: lien, label: Adresse du lien, type: string, description: "Seulement pour « Lien vers un autre site »." }
-          - { name: bouton, label: Afficher comme un bouton encadré, type: boolean }
-      - name: polices
-        label: Polices
-        type: object
-        fields:
-          - name: titres
-            label: Police des titres
-            type: select
-            options:
-              values:
-                - { name: palatino, label: "Palatino (classique)" }
-                - { name: cormorant, label: "Cormorant Garamond (fine, élégante)" }
-                - { name: garamond, label: "EB Garamond (livre)" }
-                - { name: caslon, label: "Libre Caslon (éditoriale)" }
-          - name: texte
-            label: Police du texte
-            type: select
-            options:
-              values:
-                - { name: hanken, label: "Hanken Grotesk (sobre)" }
-                - { name: jost, label: "Jost (géométrique)" }
-                - { name: source, label: "Source Sans (neutre)" }
-      - name: contact
-        label: Contact
-        type: object
-        fields:
-          - { name: intro, label: Texte de la page Contact, type: text }
-          - { name: email, label: E-mail, type: string }
-          - { name: telephone, label: Téléphone, type: string }
-          - { name: adresse, label: Adresse de l'atelier, type: text }
-          - { name: visites, label: Visites, type: string, description: "Par exemple « Visites sur rendez-vous »." }
-          - { name: instagram, label: Lien Instagram, type: string }
-          - name: cle_formulaire
-            label: Clé du formulaire de contact (Web3Forms)
-            type: string
-            description: "La clé reçue par e-mail de Web3Forms. Les messages envoyés depuis la page Contact arrivent à l'adresse liée à cette clé."
-      - { name: pied_de_page, label: Mention en bas de page, type: string }
-      - name: referencement
-        label: Référencement (Google)
-        type: object
-        fields:
-          - { name: titre, label: Titre de la page, type: string }
-          - { name: description, label: Description, type: text }
-          - { name: visible_google, label: Visible sur Google, type: boolean, description: "À cocher au lancement définitif du site." }
+          - { name: annee, label: Année, type: string, required: true }
+          - { name: presentation, label: Image de présentation, component: choix_oeuvre }
+          - { name: cadrage, label: Partie de la toile montrée, component: cadrage }
