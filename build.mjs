@@ -17,7 +17,12 @@ const num = (v) => {
   const n = typeof v === 'number' ? v : parseFloat(String(v ?? '').replace(',', '.'));
   return Number.isFinite(n) ? n : null;
 };
-const pct = (v, fallback = 50) => { const n = num(v); return n === null ? fallback : Math.max(0, Math.min(100, n)); };
+// Cadrage d'un détail de toile : un choix nommé de l'administration, ou un pourcentage (anciens contenus).
+const CADRAGES = { haut: 15, 'haut-centre': 33, centre: 50, 'centre-bas': 67, bas: 85 };
+const pct = (v, fallback = 50) => {
+  if (typeof v === 'string' && CADRAGES[v.trim()] !== undefined) return CADRAGES[v.trim()];
+  const n = num(v); return n === null ? fallback : Math.max(0, Math.min(100, n));
+};
 const slugify = (s) => str(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
   .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'x';
 const mediaPath = (p) => str(p).replace(/^\/+/, '');
@@ -202,9 +207,11 @@ async function main() {
       n: str(r.numero), t: str(r.titre), y: num(r.annee), h: num(r.hauteur), w: num(r.largeur),
       s: str(r.serie), tech: str(r.technique) || 'Huile sur toile', dispo: str(r.disponibilite), texte: str(r.texte)
     };
+    // Titre facultatif : à défaut, le nom de la série, puis le numéro.
+    if (!w.t) w.t = w.s || (w.n ? `N° ${w.n}` : '');
     const photo = mediaPath(r.photo);
-    if (!w.n || !w.t || !w.y || !w.h || !w.w || !photo) {
-      warn(`Œuvre « ${w.t || r._file} » non publiée : il manque le titre, le numéro, l'année, la hauteur, la largeur ou la photo.`);
+    if (!w.n || !w.y || !w.h || !w.w || !photo) {
+      warn(`Œuvre « ${w.t || r._file} » non publiée : il manque le numéro, l'année, la hauteur, la largeur ou la photo.`);
       continue;
     }
     if (byNumero.has(w.n)) warn(`Deux œuvres portent le numéro ${w.n} : vérifiez « ${w.t} ».`);
