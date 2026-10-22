@@ -890,8 +890,33 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
     if (e.target.id === 'tri') { st.tri = e.target.value; rerender('#tri'); }
   });
 
-  /* Formulaire de contact (Netlify Forms) */
+  /* Formulaire de contact : envoyé par Web3Forms à l'adresse liée à la clé saisie dans l'administration.
+     Sans clé, il passe par Netlify Forms (seulement sur un site hébergé par Netlify). */
+  var FORM_ENDPOINT = 'https://api.web3forms.com/submit';
   function sendForm(form){
+    var f = form.elements, key = SITE.contact.cle;
+    if (f['bot-field'] && f['bot-field'].value) return Promise.resolve();
+    if (key) {
+      var objet = f.objet.value || 'Message';
+      var payload = {
+        access_key: key,
+        subject: SITE.nom + ' · ' + objet + ' · ' + f.nom.value.trim(),
+        from_name: 'Site ' + SITE.nom,
+        'Nom': f.nom.value.trim(),
+        email: f.mail.value.trim(),
+        'Objet': objet,
+        'Téléphone': f.tel.value.trim(),
+        'Œuvre concernée': f.oeuvre.value.trim(),
+        'Message': f.msg.value
+      };
+      return fetch(FORM_ENDPOINT, {method:'POST', headers:{'Content-Type':'application/json', 'Accept':'application/json'}, body:JSON.stringify(payload)})
+        .then(function(r){
+          return r.json().catch(function(){ return {}; }).then(function(j){
+            if (!r.ok || j.success === false) throw new Error(j.message || ('HTTP ' + r.status));
+          });
+        });
+    }
+    if (!/\.netlify\.app$/.test(location.hostname)) return Promise.reject(new Error('non-configure'));
     return fetch('/', {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:new URLSearchParams(new FormData(form)).toString()})
       .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); });
   }
@@ -905,9 +930,12 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
       st.sent = (form.elements.nom.value || '').trim().split(' ')[0] || '';
       rerender(null);
       var d = view.querySelector('.done'); if (d) { d.setAttribute('tabindex', '-1'); d.focus(); }
-    }).catch(function(){
+    }).catch(function(e){
       btn.disabled = false; btn.textContent = label;
-      err.textContent = 'Le message n\'est pas parti. Vérifiez votre connexion et réessayez dans un instant.';
+      var mail = SITE.contact.email;
+      err.textContent = e && e.message === 'non-configure'
+        ? 'Le formulaire n\'est pas encore relié à une adresse e-mail.' + (mail ? ' Écrivez directement à ' + mail + '.' : '')
+        : 'Le message n\'est pas parti. Vérifiez votre connexion et réessayez dans un instant.' + (mail ? ' Vous pouvez aussi écrire à ' + mail + '.' : '');
       err.hidden = false;
     });
   });
