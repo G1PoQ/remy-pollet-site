@@ -2,21 +2,21 @@
   {
     "annee": "2025",
     "presentation": "669",
-    "cadrage": 50
+    "cadrage": "centre"
   },
   {
     "annee": "2024",
     "presentation": "631",
-    "cadrage": 40
+    "cadrage": "haut-centre"
   },
   {
     "annee": "2023",
     "presentation": "614",
-    "cadrage": 50
+    "cadrage": "centre"
   },
   {
     "annee": "1997",
     "presentation": "610",
-    "cadrage": 62
+    "cadrage": "centre-bas"
   }
 ]
