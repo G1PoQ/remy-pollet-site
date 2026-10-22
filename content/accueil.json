@@ -11,7 +11,8 @@
         "580",
         "669"
       ],
-      "lien_formats": true
+      "lien_formats": true,
+      "masquer": false
     },
     {
       "type": "catalogue",
@@ -20,13 +21,16 @@
       "texte": "La nouvelle édition de l'œuvre à l'huile de Rémy Pollet, à feuilleter en ligne page après page. Un exemplaire imprimé peut être demandé à l'atelier.",
       "lien": "https://online.fliphtml5.com/ytcdo/qyjy/#p=1",
       "libelle_bouton": "Feuilleter le catalogue",
+      "couverture": "/media/images/Capture d'écran 2026-10-22 163459.png",
       "oeuvre": "631",
-      "exemplaire": true
+      "exemplaire": true,
+      "masquer": false
     },
     {
       "type": "citation",
       "texte": "La grande sophistication de celui qui n'a pas besoin de paraître pour être.",
-      "auteur": "Benjamin Steinitz, galeriste"
+      "auteur": "Benjamin Steinitz, galeriste",
+      "masquer": false
     },
     {
       "type": "parcours",
@@ -55,7 +59,8 @@
           "texte": "Premières encres de Chine."
         }
       ],
-      "lien_bio": true
+      "lien_bio": true,
+      "masquer": false
     }
   ]
 }
