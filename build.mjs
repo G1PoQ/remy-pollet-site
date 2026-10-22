@@ -307,7 +307,8 @@ async function main() {
       sous_titre: str(site.sous_titre),
       menu,
       contact: { intro: str(contact.intro), email: str(contact.email), telephone: str(contact.telephone),
-        adresse: str(contact.adresse), visites: str(contact.visites), instagram: str(contact.instagram) },
+        adresse: str(contact.adresse), visites: str(contact.visites), instagram: str(contact.instagram),
+        cle: str(contact.cle_formulaire) },
       pied_de_page: str(site.pied_de_page)
     },
     hero, works, series, years,

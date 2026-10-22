@@ -1,7 +1,9 @@
 # Site de Rémy Pollet
 
 Site vitrine du peintre Rémy Pollet. Les contenus se modifient dans l'administration
-(Pages CMS, app.pagescms.org). Chaque enregistrement met le site à jour sur Netlify en une à deux minutes.
+(Pages CMS, app.pagescms.org). Chaque enregistrement met le site à jour sur Cloudflare Pages en une à deux minutes.
+Les messages de la page Contact sont envoyés par Web3Forms à l'adresse liée à la clé saisie dans
+Réglages du site › Contact.
 
 ## Où se trouve quoi
 
@@ -23,7 +25,7 @@ Site vitrine du peintre Rémy Pollet. Les contenus se modifient dans l'administr
 - `build.mjs` assemble le site : il recadre les photos (fond blanc et cartel retirés automatiquement),
   prépare les tailles d'image, découpe le bandeau d'en-tête, applique les polices choisies et
   injecte les contenus. Le résultat est écrit dans `dist/`.
-- `netlify.toml` indique à Netlify de lancer `node build.mjs` et de publier `dist/`.
+- Hébergement Cloudflare Pages : commande de construction `npm run build`, dossier publié `dist`.
 - `.pages.yml` décrit les formulaires de l'administration.
 
 Pour assembler le site sur un ordinateur : `npm install` puis `node build.mjs`.
