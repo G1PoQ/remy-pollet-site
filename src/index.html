@@ -133,6 +133,15 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
 .cover-meta{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 12px}
 .cover-meta .muted{font-size:14px;color:var(--muted)}
 .browse{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;padding-block:4px 36px}
+.cats{display:flex;flex-wrap:wrap;gap:4px clamp(28px,4vw,56px);border-bottom:1px solid var(--line);margin-bottom:32px}
+.cats a{font-family:var(--display);font-size:clamp(25px,2.7vw,36px);line-height:1.1;color:var(--muted);text-decoration:none;padding:4px 0 16px;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .2s,border-color .2s}
+.cats a:hover{color:var(--ink)}
+.cats a[aria-current="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.cats small{font-family:var(--body);font-size:12px;letter-spacing:.06em;color:var(--muted);margin-left:8px;vertical-align:super}
+@media (max-width:560px){.cats{gap:0 22px;margin-bottom:24px}.cats a{font-size:21px;padding-bottom:10px}.cats small{margin-left:4px}}
+.count-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 22px}
+.toggle-f{font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;background:none;border:0;padding:0;min-height:44px;cursor:pointer;color:var(--ink-2)}
+.toggle-f span{border-bottom:1px solid currentColor;padding-bottom:3px}
 .banner{position:relative;min-height:clamp(260px,30vw,380px);display:flex;align-items:flex-end;overflow:hidden;background:var(--panel);margin-bottom:28px}
 .banner > img{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover}
 .plate{position:relative;margin:clamp(16px,3vw,32px);background:var(--wall);padding:22px 28px;display:flex;flex-direction:column;gap:6px;max-width:calc(100% - 32px)}
@@ -424,8 +433,12 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
   var byN = {}; WORKS.forEach(function(w){ byN[w.slug] = w; });
   var TECHS = []; WORKS.forEach(function(w){ if (TECHS.indexOf(w.tech) < 0) TECHS.push(w.tech); });
 
-  var st = {serie:'Toutes', annee:'Toutes', format:'Tous', tech:'Toutes', tri:'recent', mode:'mur', tab:'oeuvre',
-            ask:null, askLabel:'', objet:null, sent:null, browse: SERIES.length ? 'series' : 'tout'};
+  var st = {cat:'huiles', serie:'Toutes', annee:'Toutes', format:'Tous', tech:'Toutes', tri:'recent', mode:'mur', tab:'oeuvre',
+            ask:null, askLabel:'', objet:null, sent:null, browse: 'series'};
+  function setCat(c){
+    if (!CATS.some(function(x){ return x[0] === c; })) return;
+    if (st.cat !== c) { st.cat = c; st.serie = 'Toutes'; st.annee = 'Toutes'; st.format = 'Tous'; st.tech = 'Toutes'; st.browse = catBrowses(c)[0][0]; }
+  }
   var view = document.getElementById('view');
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -434,6 +447,23 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
   function alt(w){ return w.t + ', ' + w.y + '. ' + w.tech + ', ' + w.f + ' cm.'; }
   // Les ensembles « Encres de Chine » et « Dessins » ne sont pas des séries au sens des huiles.
   var GROUPES = {'Encres de Chine':1, 'Dessins':1};
+  // Les œuvres sont rangées en trois parties, comme sur l'ancien site : huiles, encres, dessins.
+  var CATS = [['huiles', 'Huiles'], ['encres', 'Encres de Chine'], ['dessins', 'Dessins']];
+  function catOf(w){
+    if (w.s === 'Dessins' || w.tech === 'Dessin' || w.tech === 'Feutre sur papier') return 'dessins';
+    if (w.tech === 'Encre de Chine sur papier' || w.s === 'Encres de Chine') return 'encres';
+    return 'huiles';
+  }
+  WORKS.forEach(function(w){ w.cat = catOf(w); });
+  CATS = CATS.filter(function(c){ return WORKS.some(function(w){ return w.cat === c[0]; }); });
+  function catName(c){ var f = CATS.filter(function(x){ return x[0] === c; })[0]; return f ? f[1] : 'Œuvres'; }
+  function catSeries(){ return SERIES.filter(function(s){ return !GROUPES[s.nom] && WORKS.some(function(w){ return w.cat === 'huiles' && w.s === s.nom; }); }); }
+  function catYears(c){ return YEARS.filter(function(y){ return WORKS.some(function(w){ return w.cat === c && String(w.y) === y.nom; }); }); }
+  function catBrowses(c){ return c === 'huiles' ? [['series', 'Par série'], ['annees', 'Par année'], ['tout', 'Toutes les huiles']].filter(function(b){ return b[0] !== 'series' || catSeries().length; })
+    : c === 'encres' ? [['annees', 'Par année'], ['tout', 'Toutes les encres']] : [['tout', 'Tous les dessins']]; }
+  var FILTRES_OUVERTS = true;
+  try { FILTRES_OUVERTS = localStorage.getItem('rp-filtres') !== 'caches'; } catch (e) {}
+  if (CATS.length) { st.cat = CATS[0][0]; st.browse = catBrowses(st.cat)[0][0]; }
   function serieLabel(w){ return w.s ? (GROUPES[w.s] ? w.s : 'Série ' + w.s) : (TECH_SHORT[w.tech] || w.tech); }
   function plural(n){ return n + (n > 1 ? ' œuvres' : ' œuvre'); }
   function srcset(w){ return 'img/o/' + w.slug + '-s.jpg ' + w.sw + 'w, img/o/' + w.slug + '.jpg ' + w.fw + 'w'; }
@@ -448,13 +478,13 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
     var w = byN[c.slug];
     return '<img src="img/o/' + w.slug + '.jpg" srcset="' + srcset(w) + '" sizes="' + sizes + '" alt="" decoding="async" ' + (eager ? '' : 'loading="lazy" ') + 'style="object-position:' + c.pos + ';background:' + w.bg + '">';
   }
-  function serieTile(s){
+  function serieTile(s, n){
     return '<a class="cover" href="#oeuvres" data-serie="' + esc(s.nom) + '"><div class="cover-img">' + coverImg(s.cover, '(max-width:520px) 92vw, (max-width:900px) 46vw, 30vw') + '</div>' +
-      '<div class="cover-meta"><span class="card-title">' + esc(s.nom) + '</span><span class="muted">' + esc(s.annees) + (s.annees ? ' · ' : '') + plural(s.count) + '</span></div></a>';
+      '<div class="cover-meta"><span class="card-title">' + esc(s.nom) + '</span><span class="muted">' + esc(s.annees) + (s.annees ? ' · ' : '') + plural(n == null ? s.count : n) + '</span></div></a>';
   }
-  function yearTile(y){
+  function yearTile(y, n){
     return '<a class="cover" href="#oeuvres" data-annee="' + y.nom + '"><div class="cover-img">' + coverImg(y.cover, '(max-width:520px) 92vw, (max-width:900px) 46vw, 30vw') + '</div>' +
-      '<div class="cover-meta"><span class="card-title">' + y.nom + '</span><span class="muted">' + plural(y.count) + '</span></div></a>';
+      '<div class="cover-meta"><span class="card-title">' + y.nom + '</span><span class="muted">' + plural(n == null ? y.count : n) + '</span></div></a>';
   }
   function crumbs(items){
     return '<nav class="crumbs" aria-label="Fil d\'Ariane"><a href="#accueil">Accueil</a>' + items.map(function(i){ return '<span>/</span>' + i; }).join('') + '</nav>';
@@ -589,13 +619,16 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
   }
 
   /* Catalogue des œuvres */
+  function matches(w, except){
+    return w.cat === st.cat &&
+      (except === 'serie' || st.serie === 'Toutes' || (st.serie === 'À préciser' ? !w.s : w.s === st.serie)) &&
+      (except === 'annee' || st.annee === 'Toutes' || String(w.y) === st.annee) &&
+      (except === 'tech' || st.tech === 'Toutes' || w.tech === st.tech) &&
+      (except === 'format' || st.format === 'Tous' || sizeCat(w) === st.format);
+  }
+  function pool(except){ return WORKS.filter(function(w){ return matches(w, except); }); }
   function filtered(){
-    var list = WORKS.filter(function(w){
-      return (st.serie === 'Toutes' || (st.serie === 'À préciser' ? !w.s : w.s === st.serie)) &&
-             (st.annee === 'Toutes' || String(w.y) === st.annee) &&
-             (st.tech === 'Toutes' || w.tech === st.tech) &&
-             (st.format === 'Tous' || sizeCat(w) === st.format);
-    });
+    var list = pool(null);
     list.sort(function(a, b){
       var na = rank(a.n), nb = rank(b.n);
       if (st.tri === 'ancien') return a.y - b.y || na - nb;
@@ -616,33 +649,51 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
 
   function oeuvresPage(){
     var list = filtered();
-    var head = '<div class="page-head">' + crumbs(['<span>Œuvres</span>']) +
-      '<h1 class="display">Œuvres</h1><p class="lede">' + (WORKS.length ? 'Entrez par une série ou une année, ou affichez toutes les œuvres et filtrez par format.' : 'Les œuvres seront bientôt présentées ici.') + '</p></div>';
+    var head = '<div class="page-head">' + crumbs(['<a href="#oeuvres">Œuvres</a>', '<span>' + esc(catName(st.cat)) + '</span>']) +
+      '<h1 class="display">Œuvres</h1><p class="lede">' + (WORKS.length ? 'Les huiles, les encres de Chine et les dessins. Entrez par une série ou une année, ou affichez tout et affinez avec les filtres.' : 'Les œuvres seront bientôt présentées ici.') + '</p></div>';
     if (!WORKS.length) return '<div class="wrap">' + head + '<div class="empty-site"></div></div>';
-    var tabs = [['series', 'Par série'], ['annees', 'Par année'], ['tout', 'Toutes les œuvres']].filter(function(b){ return b[0] !== 'series' || SERIES.length; });
-    var browse = '<div class="browse"><span class="flabel">Parcourir</span><div class="seg" role="group" aria-label="Parcourir le catalogue">' +
-      tabs.map(function(b){ return '<button type="button" data-browse="' + b[0] + '" aria-pressed="' + (st.browse === b[0]) + '">' + b[1] + '</button>'; }).join('') + '</div></div>';
+    var cats = CATS.length > 1 ? '<nav class="cats" aria-label="Parties du catalogue">' + CATS.map(function(c){
+      var n = WORKS.filter(function(w){ return w.cat === c[0]; }).length;
+      return '<a href="#oeuvres/' + c[0] + '" aria-current="' + (st.cat === c[0]) + '">' + esc(c[1]) + '<small>' + n + '</small></a>';
+    }).join('') + '</nav>' : '';
+    var tabs = catBrowses(st.cat);
+    if (!tabs.some(function(b){ return b[0] === st.browse; })) st.browse = tabs[0][0];
+    var browse = tabs.length > 1 ? '<div class="browse"><span class="flabel">Parcourir</span><div class="seg" role="group" aria-label="Parcourir">' +
+      tabs.map(function(b){ return '<button type="button" data-browse="' + b[0] + '" aria-pressed="' + (st.browse === b[0]) + '">' + b[1] + '</button>'; }).join('') + '</div></div>' : '';
     if (st.browse === 'series' || st.browse === 'annees') {
-      return '<div class="wrap">' + head + browse +
-        '<div class="covers" style="padding-bottom:clamp(72px,9vw,112px)">' + (st.browse === 'series' ? SERIES.map(serieTile) : YEARS.map(yearTile)).join('') + '</div></div>';
+      var tiles = st.browse === 'series' ? catSeries().map(function(x){ return serieTile(x, WORKS.filter(function(w){ return w.cat === 'huiles' && w.s === x.nom; }).length); })
+        : catYears(st.cat).map(function(y){ return yearTile(y, WORKS.filter(function(w){ return w.cat === st.cat && String(w.y) === y.nom; }).length); });
+      return '<div class="wrap">' + head + cats + browse +
+        '<div class="covers" style="padding-bottom:clamp(72px,9vw,112px)">' + tiles.join('') + '</div></div>';
     }
     var banner = '';
-    var bs = SERIES.filter(function(s){ return s.nom === st.serie; })[0];
+    var bs = st.cat === 'huiles' && SERIES.filter(function(x){ return x.nom === st.serie && !GROUPES[x.nom]; })[0];
     var by = !bs && YEARS.filter(function(y){ return y.nom === st.annee; })[0];
     var bc = bs || by;
     if (bc) {
       var cw = byN[bc.cover.slug];
+      if (by && cw.cat !== st.cat) { var alt0 = pool('annee').filter(function(w){ return String(w.y) === st.annee; })[0]; if (alt0) { cw = alt0; bc = {nom: by.nom, cover: {slug: alt0.slug, pos: '50% 50%'}}; } }
       banner = '<section class="banner">' + coverImg(bc.cover, '(max-width:1300px) 96vw, 1240px', true) +
-        '<div class="plate"><span class="eyebrow">' + (bs ? (GROUPES[bs.nom] ? 'Ensemble' : 'Série') : 'Année') + '</span><h2 class="display">' + esc(bc.nom) + '</h2>' +
+        '<div class="plate"><span class="eyebrow">' + (bs ? 'Série' : esc(catName(st.cat)) + ' · Année') + '</span><h2 class="display">' + esc(bc.nom) + '</h2>' +
         '<div class="row-meta">' + (bs && bs.annees ? '<span>' + esc(bs.annees) + '</span>' : '') + '<span>' + plural(list.length) + (st.format !== 'Tous' || st.tech !== 'Toutes' || (bs && st.annee !== 'Toutes') ? ' avec ces filtres' : '') + '</span></div>' +
         (bs && bs.description ? '<p class="notice" style="max-width:34em">' + inline(bs.description) + '</p>' : '') +
         '<span class="cartel">Image de présentation : ' + esc(cw.t) + ', ' + cw.y + ' (détail)</span></div>' +
-        '<button type="button" class="banner-close" data-reset>Toutes les œuvres ✕</button></section>';
+        '<button type="button" class="banner-close" data-reset>' + ({huiles:'Toutes les huiles', encres:'Toutes les encres', dessins:'Tous les dessins'}[st.cat] || 'Toutes les œuvres') + ' ✕</button></section>';
     }
-    var seriesNames = ['Toutes'].concat(SERIES.map(function(s){ return s.nom; }));
-    if (WORKS.some(function(w){ return !w.s; })) seriesNames.push('À préciser');
-    var years = ['Toutes'].concat(YEARS.map(function(y){ return y.nom; }));
-    var countSerie = function(v){ return WORKS.filter(function(w){ return v === 'Toutes' || (v === 'À préciser' ? !w.s : w.s === v); }).length; };
+    // Filtres : seulement les choix qui donnent des œuvres avec les autres filtres
+    var pS = pool('serie'), pY = pool('annee'), pT = pool('tech'), pF = pool('format');
+    var seriesNames = [];
+    if (st.cat === 'huiles') {
+      seriesNames = ['Toutes'].concat(catSeries().map(function(x){ return x.nom; }).filter(function(n){ return n === st.serie || pS.some(function(w){ return w.s === n; }); }));
+      if (st.serie === 'À préciser' || pS.some(function(w){ return !w.s; })) seriesNames.push('À préciser');
+    }
+    var countSerie = function(v){ return pS.filter(function(w){ return v === 'Toutes' || (v === 'À préciser' ? !w.s : w.s === v); }).length; };
+    var years = ['Toutes'].concat(YEARS.map(function(y){ return y.nom; }).filter(function(y){ return y === st.annee || pY.some(function(w){ return String(w.y) === y; }); }));
+    var countYear = function(v){ return pY.filter(function(w){ return v === 'Toutes' || String(w.y) === v; }).length; };
+    var techs = []; pT.forEach(function(w){ if (techs.indexOf(w.tech) < 0) techs.push(w.tech); });
+    if (st.tech !== 'Toutes' && techs.indexOf(st.tech) < 0) techs.push(st.tech);
+    var formats = ['Tous'].concat(['Petit', 'Moyen', 'Grand'].filter(function(f){ return f === st.format || pF.some(function(w){ return sizeCat(w) === f; }); }));
+    var actifs = (st.serie !== 'Toutes') + (st.annee !== 'Toutes') + (st.tech !== 'Toutes') + (st.format !== 'Tous');
     var results;
     if (!list.length) {
       results = '<div class="empty"><p>Aucune œuvre pour cette combinaison.</p><button class="btn ghost" type="button" data-reset>Effacer les filtres</button></div>';
@@ -653,14 +704,16 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
     } else {
       results = '<div class="grid">' + list.map(card).join('') + '</div>';
     }
-    return '<div class="wrap">' + head + browse + banner +
-      '<div class="filters" role="group" aria-label="Filtres">' +
-        (seriesNames.length > 1 ? '<div class="fgroup"><span class="flabel">Série</span>' + chips('serie', seriesNames, {count: countSerie}) + '</div>' : '') +
-        '<div class="fgroup"><span class="flabel">Année</span>' + chips('annee', years) + '</div>' +
-        (TECHS.length > 1 ? '<div class="fgroup"><span class="flabel">Technique</span>' + chips('tech', ['Toutes'].concat(TECHS), {label: function(v){ return v === 'Toutes' ? v : (TECH_SHORT[v] || v); }}) + '</div>' : '') +
-        '<div class="fgroup"><span class="flabel">Format</span>' + chips('format', ['Tous', 'Petit', 'Moyen', 'Grand']) + '<span class="hint" style="margin-left:8px">Petit ≤ 73 cm · Moyen 74 – 120 cm · Grand ≥ 121 cm</span></div>' +
-      '</div>' +
-      '<div class="toolbar"><span class="count" aria-live="polite">' + plural(list.length) + '</span>' +
+    var filtres = FILTRES_OUVERTS ? '<div class="filters" id="filtres" role="group" aria-label="Filtres">' +
+        (seriesNames.length > 2 ? '<div class="fgroup"><span class="flabel">Série</span>' + chips('serie', seriesNames, {count: countSerie}) + '</div>' : '') +
+        (years.length > 2 ? '<div class="fgroup"><span class="flabel">Année</span>' + chips('annee', years, {count: countYear}) + '</div>' : '') +
+        (techs.length > 1 ? '<div class="fgroup"><span class="flabel">Technique</span>' + chips('tech', ['Toutes'].concat(techs), {label: function(v){ return v === 'Toutes' ? v : (TECH_SHORT[v] || v); }}) + '</div>' : '') +
+        (formats.length > 2 ? '<div class="fgroup"><span class="flabel">Format</span>' + chips('format', formats) + '<span class="hint" style="margin-left:8px">Petit ≤ 73 cm · Moyen 74 – 120 cm · Grand ≥ 121 cm</span></div>' : '') +
+      '</div>' : '';
+    var toggle = '<button type="button" class="toggle-f" data-togglefilters aria-expanded="' + FILTRES_OUVERTS + '" aria-controls="filtres"><span>' +
+      (FILTRES_OUVERTS ? 'Masquer les filtres' : 'Afficher les filtres' + (actifs ? ' (' + actifs + ' actif' + (actifs > 1 ? 's' : '') + ')' : '')) + '</span></button>';
+    return '<div class="wrap">' + head + cats + browse + banner + filtres +
+      '<div class="toolbar"><div class="count-row"><span class="count" aria-live="polite">' + plural(list.length) + '</span>' + toggle + '</div>' +
         '<div class="tools"><div class="seg" role="group" aria-label="Affichage"><button type="button" data-mode="mur" aria-pressed="' + (st.mode === 'mur') + '">Mur</button><button type="button" data-mode="echelle" aria-pressed="' + (st.mode === 'echelle') + '">À l\'échelle</button></div>' +
         '<label class="select" for="tri">Trier<select id="tri"><option value="recent"' + (st.tri === 'recent' ? ' selected' : '') + '>Plus récentes</option><option value="ancien"' + (st.tri === 'ancien' ? ' selected' : '') + '>Plus anciennes</option><option value="grand"' + (st.tri === 'grand' ? ' selected' : '') + '>Grands formats d\'abord</option></select></label></div>' +
       '</div>' +
@@ -669,8 +722,8 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
   }
 
   function contextList(slug){
-    var l = filtered();
-    return l.some(function(w){ return w.slug === slug; }) ? l : WORKS.slice();
+    var l = filtered(), w = byN[slug];
+    return l.some(function(x){ return x.slug === slug; }) ? l : WORKS.filter(function(x){ return x.cat === w.cat; });
   }
 
   /* Fiche d'une œuvre */
@@ -698,7 +751,7 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
     if (w.dispo) facts.push(['Disponibilité', esc(w.dispo)]);
     return '' +
     '<div class="wrap">' +
-      '<div class="work-top">' + crumbs(['<a href="#oeuvres">Œuvres</a>'].concat(w.s ? ['<a href="#oeuvres" data-serie="' + esc(w.s) + '">' + esc(w.s) + '</a>'] : []).concat(['<span>N° ' + esc(w.n) + '</span>'])) +
+      '<div class="work-top">' + crumbs(['<a href="#oeuvres">Œuvres</a>', '<a href="#oeuvres/' + w.cat + '">' + esc(catName(w.cat)) + '</a>'].concat(w.s && !GROUPES[w.s] ? ['<a href="#oeuvres" data-serie="' + esc(w.s) + '">' + esc(w.s) + '</a>'] : []).concat(['<span>N° ' + esc(w.n) + '</span>'])) +
         (list.length > 1 ? '<div class="pager"><a href="#oeuvre-' + prev.slug + '">← Précédente</a><span class="cartel">' + (i + 1) + ' / ' + list.length + '</span><a href="#oeuvre-' + next.slug + '">Suivante →</a></div>' : '') + '</div>' +
       '<div class="work">' +
         '<div class="work-main">' + stage +
@@ -715,7 +768,7 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
       '</div>' +
     '</div>' +
     (more.length ? '<section class="band"><div class="wrap sec">' +
-      '<div class="sec-head"><h2 class="display">' + (same.length ? (GROUPES[w.s] ? 'Dans le même ensemble' : 'Dans la même série') : 'À voir aussi') + '</h2>' + (w.s ? '<a class="link-caps" href="#oeuvres" data-serie="' + esc(w.s) + '"><span>' + (GROUPES[w.s] ? 'Tout l\'ensemble ' : 'Toute la série ') + esc(w.s) + '</span></a>' : '<a class="link-caps" href="#oeuvres" data-browse="tout"><span>Toutes les œuvres</span></a>') + '</div>' +
+      '<div class="sec-head"><h2 class="display">' + (same.length ? (GROUPES[w.s] ? 'Dans le même ensemble' : 'Dans la même série') : 'À voir aussi') + '</h2>' + (w.s ? (GROUPES[w.s] ? '<a class="link-caps" href="#oeuvres/' + w.cat + '"><span>Tout l\'ensemble ' + esc(w.s) + '</span></a>' : '<a class="link-caps" href="#oeuvres" data-serie="' + esc(w.s) + '"><span>Toute la série ' + esc(w.s) + '</span></a>') : '<a class="link-caps" href="#oeuvres" data-browse="tout"><span>Toutes les œuvres</span></a>') + '</div>' +
       '<div class="grid">' + more.slice(0, 3).map(card).join('') + '</div>' +
     '</div></section>' : '');
   }
@@ -800,6 +853,7 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
     var h = decodeURIComponent((location.hash || '').slice(1)) || 'accueil';
     var key = h, html;
     if (h.indexOf('oeuvre-') === 0 && byN[h.slice(7)]) { html = fiche(byN[h.slice(7)]); key = 'oeuvres'; }
+    else if (h.indexOf('oeuvres/') === 0) { setCat(h.slice(8)); html = oeuvresPage(); key = 'oeuvres'; }
     else if (VIEWS[h]) { html = VIEWS[h](); }
     else if (h === 'view' && view.innerHTML) { return; }
     else { key = 'accueil'; html = home(); }
@@ -895,18 +949,24 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
     var tab = t.closest('[data-tab]');
     if (tab) { st.tab = tab.dataset.tab; rerender('[data-tab="' + st.tab + '"]'); return; }
     if (t.closest('[data-reset]')) { st.serie = 'Toutes'; st.annee = 'Toutes'; st.format = 'Tous'; st.tech = 'Toutes'; rerender('[data-f="annee"][data-v="Toutes"]'); return; }
+    if (t.closest('[data-togglefilters]')) { FILTRES_OUVERTS = !FILTRES_OUVERTS; try { localStorage.setItem('rp-filtres', FILTRES_OUVERTS ? 'ouverts' : 'caches'); } catch (e2) {} rerender('[data-togglefilters]'); return; }
     var z = t.closest('[data-zoom]');
     if (z) { openLb(z.dataset.zoom); return; }
     var ph = t.closest('[data-photo]');
     if (ph) { openPhotos(ph.dataset.photo); return; }
     if (t.closest('[data-newmsg]')) { st.sent = null; rerender('#c-nom'); return; }
     var br = t.closest('[data-browse]');
-    if (br) { st.browse = br.dataset.browse; if (br.tagName === 'BUTTON') { rerender('[data-browse="' + st.browse + '"]'); return; } }
+    if (br) { if (br.dataset.browse === 'series') setCat('huiles'); st.browse = br.dataset.browse; if (br.tagName === 'BUTTON') { rerender('[data-browse="' + st.browse + '"]'); return; } }
     var s = t.closest('[data-serie]');
-    if (s) { st.serie = s.dataset.serie; st.annee = 'Toutes'; st.format = 'Tous'; st.tech = 'Toutes'; st.browse = 'tout'; }
+    if (s) {
+      var sv = s.dataset.serie;
+      if (GROUPES[sv]) { setCat(sv === 'Dessins' ? 'dessins' : 'encres'); st.serie = 'Toutes'; }
+      else { setCat('huiles'); st.serie = sv; }
+      st.annee = 'Toutes'; st.format = 'Tous'; st.tech = 'Toutes'; st.browse = 'tout';
+    }
     var y = t.closest('[data-annee]');
     if (y) { st.annee = y.dataset.annee; st.serie = 'Toutes'; st.format = 'Tous'; st.tech = 'Toutes'; st.browse = 'tout'; }
-    if (t.closest('[data-scale]')) { st.serie = 'Toutes'; st.annee = 'Toutes'; st.format = 'Tous'; st.tech = 'Toutes'; st.browse = 'tout'; st.mode = 'echelle'; }
+    if (t.closest('[data-scale]')) { setCat('huiles'); st.serie = 'Toutes'; st.annee = 'Toutes'; st.format = 'Tous'; st.tech = 'Toutes'; st.browse = 'tout'; st.mode = 'echelle'; }
     var a = t.closest('a[href^="#"]');
     if (a) {
       var href = a.getAttribute('href');
