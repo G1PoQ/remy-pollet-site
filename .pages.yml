@@ -84,6 +84,10 @@ content:
         description: "Envoyez la photo du photographe telle quelle : le fond blanc et le cartel sont retirés automatiquement."
         options:
           media: oeuvres
+      - name: deja_recadree
+        label: Photo déjà recadrée
+        type: boolean
+        description: "Laissez décoché pour une photo du photographe. Cochez seulement si la photo montre l'œuvre seule, sans fond blanc ni cartel (c'est le cas des encres et des dessins repris de l'ancien site)."
       - name: numero
         label: Numéro
         type: string
@@ -130,7 +134,7 @@ content:
         type: select
         description: "Laissez vide pour « Huile sur toile »."
         options:
-          values: [Huile sur toile, Encre de Chine sur papier, Dessin, Autre]
+          values: [Huile sur toile, Encre de Chine sur papier, Feutre sur papier, Dessin, Autre]
       - name: disponibilite
         label: Disponibilité (facultatif)
         type: select
@@ -335,6 +339,8 @@ content:
             fields:
               - { name: periode, label: Date ou période, type: string, description: "Exemple : 1972, ou « Années 1980 »." }
               - { name: texte, label: Texte, type: text }
+          - { name: portrait, label: Portrait (facultatif), type: image, options: { media: images } }
+          - { name: legende_portrait, label: Légende du portrait (facultatif), type: string }
           - { name: oeuvre, label: Œuvre affichée à côté, component: choix_oeuvre }
 
       - name: expositions
@@ -358,6 +364,7 @@ content:
               - { name: titre, label: Titre, type: string }
               - { name: lieu, label: Ville, type: string }
               - { name: organisateur, label: Galerie ou organisateur, type: string }
+              - { name: photos, label: Photos (facultatif), type: image, list: true, options: { media: images }, description: "Vues de l'exposition. Elles s'affichent en vignettes sous la ligne et s'agrandissent au clic." }
 
   - name: reglages_groupe
     label: Réglages

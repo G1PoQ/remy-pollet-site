@@ -190,6 +190,12 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
 .rows{display:flex;flex-direction:column}
 .row{display:grid;grid-template-columns:150px minmax(0,2fr) minmax(0,1fr) minmax(0,1.2fr);gap:8px 24px;align-items:baseline;padding-block:22px;border-top:1px solid var(--line)}
 .row:last-child{border-bottom:1px solid var(--line)}
+.row-photos{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:10px;padding-top:10px}
+.row-photos button{padding:0;border:0;background:var(--panel);cursor:zoom-in;line-height:0}
+.row-photos img{height:clamp(84px,9vw,120px);width:auto;display:block;transition:opacity .2s}
+.row-photos button:hover img{opacity:.82}
+.portrait{margin:0;display:flex;flex-direction:column;gap:10px}
+.portrait img{width:100%;height:auto;display:block;background:var(--panel)}
 .row .ev{font-family:var(--display);font-size:clamp(19px,1.9vw,23px);line-height:1.3}
 .row .muted{color:var(--muted);font-size:15px}
 @media (max-width:760px){.row{grid-template-columns:minmax(0,1fr)}.row .ev{order:-1}}
@@ -405,13 +411,14 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
   var DATA = JSON.parse(document.getElementById('site-data').textContent);
   var SITE = DATA.site, WORKS = DATA.works, SERIES = DATA.series, YEARS = DATA.years, HERO = DATA.hero;
   var EXPO = DATA.expositions, BIO = DATA.biographie, SECTIONS = DATA.accueil;
-  var TECH_SHORT = {'Huile sur toile':'Huiles', 'Encre de Chine sur papier':'Encres', 'Dessin':'Dessins', 'Autre':'Autres'};
+  var TECH_SHORT = {'Huile sur toile':'Huiles', 'Encre de Chine sur papier':'Encres', 'Feutre sur papier':'Feutres', 'Dessin':'Dessins', 'Autre':'Autres'};
 
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
   function inline(s){ return esc(s).replace(/\*([^*\n]+)\*/g, '<em>$1</em>').replace(/\n/g, '<br>'); }
   function plain(s){ return String(s || '').replace(/\*/g, '').replace(/\s*\n\s*/g, ' ').trim(); }
   function paras(s){ return String(s || '').split(/\n\s*\n/).filter(function(p){ return p.trim(); }).map(function(p){ return '<p>' + inline(p.trim()) + '</p>'; }).join(''); }
   function fnum(n){ return String(n).replace('.', ','); }
+  function rank(n){ var m = String(n).match(/(\d+)(?!.*\d)/); return m ? +m[1] : 0; }
 
   WORKS.forEach(function(w){ w.f = fnum(w.h) + ' × ' + fnum(w.w); });
   var byN = {}; WORKS.forEach(function(w){ byN[w.slug] = w; });
@@ -425,7 +432,9 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
   function sizeCat(w){ var m = Math.max(w.h, w.w); return m >= 121 ? 'Grand' : (m >= 74 ? 'Moyen' : 'Petit'); }
   function cartel(w){ return w.n + ' ' + fnum(w.h) + 'X' + fnum(w.w) + ' ' + w.y + '.'; }
   function alt(w){ return w.t + ', ' + w.y + '. ' + w.tech + ', ' + w.f + ' cm.'; }
-  function serieLabel(w){ return w.s ? 'Série ' + w.s : (TECH_SHORT[w.tech] || w.tech); }
+  // Les ensembles « Encres de Chine » et « Dessins » ne sont pas des séries au sens des huiles.
+  var GROUPES = {'Encres de Chine':1, 'Dessins':1};
+  function serieLabel(w){ return w.s ? (GROUPES[w.s] ? w.s : 'Série ' + w.s) : (TECH_SHORT[w.tech] || w.tech); }
   function plural(n){ return n + (n > 1 ? ' œuvres' : ' œuvre'); }
   function srcset(w){ return 'img/o/' + w.slug + '-s.jpg ' + w.sw + 'w, img/o/' + w.slug + '.jpg ' + w.fw + 'w'; }
   function img(w, sizes, extra){
@@ -450,9 +459,12 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
   function crumbs(items){
     return '<nav class="crumbs" aria-label="Fil d\'Ariane"><a href="#accueil">Accueil</a>' + items.map(function(i){ return '<span>/</span>' + i; }).join('') + '</nav>';
   }
-  function expoRows(list){
+  function expoRows(list, photos){
     return '<div class="rows">' + list.map(function(x){
-      return '<div class="row"><span class="cartel">' + esc(x.date) + '</span><span class="ev">' + esc(x.titre) + '</span><span class="muted">' + esc(x.lieu) + '</span><span class="muted">' + esc(x.organisateur) + '</span></div>';
+      var ph = photos && x.photos && x.photos.length ? '<div class="row-photos">' + x.photos.map(function(p, j){
+        return '<button type="button" data-photo="' + EXPO.liste.indexOf(x) + ':' + j + '" aria-label="Agrandir la photo ' + (j + 1) + ' : ' + esc(x.titre) + '"><img src="' + p.s + '" width="' + p.sw + '" height="' + p.sh + '" alt="" loading="lazy" decoding="async"></button>';
+      }).join('') + '</div>' : '';
+      return '<div class="row"><span class="cartel">' + esc(x.date) + '</span><span class="ev">' + esc(x.titre) + '</span><span class="muted">' + esc(x.lieu) + '</span><span class="muted">' + esc(x.organisateur) + '</span>' + ph + '</div>';
     }).join('') + '</div>';
   }
 
@@ -585,7 +597,7 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
              (st.format === 'Tous' || sizeCat(w) === st.format);
     });
     list.sort(function(a, b){
-      var na = parseFloat(a.n) || 0, nb = parseFloat(b.n) || 0;
+      var na = rank(a.n), nb = rank(b.n);
       if (st.tri === 'ancien') return a.y - b.y || na - nb;
       if (st.tri === 'grand') return (b.h * b.w) - (a.h * a.w) || b.y - a.y;
       return b.y - a.y || nb - na;
@@ -621,7 +633,7 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
     if (bc) {
       var cw = byN[bc.cover.slug];
       banner = '<section class="banner">' + coverImg(bc.cover, '(max-width:1300px) 96vw, 1240px', true) +
-        '<div class="plate"><span class="eyebrow">' + (bs ? 'Série' : 'Année') + '</span><h2 class="display">' + esc(bc.nom) + '</h2>' +
+        '<div class="plate"><span class="eyebrow">' + (bs ? (GROUPES[bs.nom] ? 'Ensemble' : 'Série') : 'Année') + '</span><h2 class="display">' + esc(bc.nom) + '</h2>' +
         '<div class="row-meta">' + (bs && bs.annees ? '<span>' + esc(bs.annees) + '</span>' : '') + '<span>' + plural(list.length) + (st.format !== 'Tous' || st.tech !== 'Toutes' || (bs && st.annee !== 'Toutes') ? ' avec ces filtres' : '') + '</span></div>' +
         (bs && bs.description ? '<p class="notice" style="max-width:34em">' + inline(bs.description) + '</p>' : '') +
         '<span class="cartel">Image de présentation : ' + esc(cw.t) + ', ' + cw.y + ' (détail)</span></div>' +
@@ -667,6 +679,7 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
     var i = list.findIndex(function(x){ return x.slug === w.slug; });
     var prev = list[(i - 1 + list.length) % list.length], next = list[(i + 1) % list.length];
     var same = WORKS.filter(function(x){ return x.slug !== w.slug && w.s && x.s === w.s; });
+    if (GROUPES[w.s]) same.sort(function(a, b){ return Math.abs(a.y - w.y) - Math.abs(b.y - w.y) || Math.abs(rank(a.n) - rank(w.n)) - Math.abs(rank(b.n) - rank(w.n)); });
     var more = same.length ? same : WORKS.filter(function(x){ return x.slug !== w.slug; }).slice(0, 3);
     var stage;
     if (st.tab === 'echelle') {
@@ -702,7 +715,7 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
       '</div>' +
     '</div>' +
     (more.length ? '<section class="band"><div class="wrap sec">' +
-      '<div class="sec-head"><h2 class="display">' + (same.length ? 'Dans la même série' : 'À voir aussi') + '</h2>' + (w.s ? '<a class="link-caps" href="#oeuvres" data-serie="' + esc(w.s) + '"><span>Toute la série ' + esc(w.s) + '</span></a>' : '<a class="link-caps" href="#oeuvres" data-browse="tout"><span>Toutes les œuvres</span></a>') + '</div>' +
+      '<div class="sec-head"><h2 class="display">' + (same.length ? (GROUPES[w.s] ? 'Dans le même ensemble' : 'Dans la même série') : 'À voir aussi') + '</h2>' + (w.s ? '<a class="link-caps" href="#oeuvres" data-serie="' + esc(w.s) + '"><span>' + (GROUPES[w.s] ? 'Tout l\'ensemble ' : 'Toute la série ') + esc(w.s) + '</span></a>' : '<a class="link-caps" href="#oeuvres" data-browse="tout"><span>Toutes les œuvres</span></a>') + '</div>' +
       '<div class="grid">' + more.slice(0, 3).map(card).join('') + '</div>' +
     '</div></section>' : '');
   }
@@ -710,7 +723,7 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
   function expositions(){
     return '<div class="wrap">' +
       '<div class="page-head">' + crumbs(['<span>Expositions</span>']) + '<h1 class="display">Expositions</h1>' + (EXPO.intro ? '<p class="lede">' + inline(EXPO.intro) + '</p>' : '') + '</div>' +
-      '<div style="padding-bottom:48px">' + expoRows(EXPO.liste) + '</div>' +
+      '<div style="padding-bottom:48px">' + expoRows(EXPO.liste, true) + '</div>' +
       '<div class="actions" style="padding-bottom:clamp(72px,9vw,112px)"><a class="btn" href="#contact" data-objet="Exposition ou prêt">Proposer une exposition</a></div>' +
     '</div>';
   }
@@ -721,7 +734,8 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
       '<div class="page-head">' + crumbs(['<span>Biographie</span>']) + '<h1 class="display">Biographie</h1>' + (BIO.intro ? '<p class="bio-intro">' + inline(BIO.intro) + '</p>' : '') + '</div>' +
       '<div class="bio" style="padding-top:24px">' +
         '<ol class="timeline">' + BIO.etapes.map(function(e){ return '<li><b>' + esc(e.periode) + '</b><p>' + inline(e.texte) + '</p></li>'; }).join('') + '</ol>' +
-        (w ? '<aside><a class="card" href="#oeuvre-' + w.slug + '"><div class="niche"><div class="fit">' + img(w, '(max-width:900px) 80vw, 30vw') + '</div></div><div class="card-meta"><span class="card-title"><em>' + esc(w.t) + '</em>, ' + w.y + '</span><span class="cartel">' + esc(cartel(w)) + '</span></div></a></aside>' : '') +
+        (BIO.portrait || w ? '<aside>' + (BIO.portrait ? '<figure class="portrait"><img src="' + BIO.portrait.src + '" width="' + BIO.portrait.w + '" height="' + BIO.portrait.h + '" alt="' + esc(BIO.legende || SITE.nom) + '" loading="lazy" decoding="async">' + (BIO.legende ? '<figcaption class="cartel">' + esc(BIO.legende) + '</figcaption>' : '') + '</figure>' : '') : '') +
+        (w ? '<a class="card" href="#oeuvre-' + w.slug + '"><div class="niche"><div class="fit">' + img(w, '(max-width:900px) 80vw, 30vw') + '</div></div><div class="card-meta"><span class="card-title"><em>' + esc(w.t) + '</em>, ' + w.y + '</span><span class="cartel">' + esc(cartel(w)) + '</span></div></a>' : '') + (BIO.portrait || w ? '</aside>' : '') +
       '</div>' +
     '</div>';
   }
@@ -808,6 +822,7 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
     if (focusSel) { var el = view.querySelector(focusSel); if (el) el.focus({preventScroll:true}); }
   }
   window.addEventListener('hashchange', function(){
+    if (!lb.hidden) { lb.hidden = true; document.body.style.overflow = ''; }
     if ((location.hash || '').slice(1).indexOf('oeuvre-') === 0) st.tab = 'oeuvre';
     render(false);
   });
@@ -823,11 +838,22 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
   function showLb(){
     var w = lbList[lbI];
     lbImg.classList.remove('zoomed'); document.getElementById('lb-zoom').setAttribute('aria-pressed', 'false');
+    if (w.photo) {
+      lbImg.src = w.photo.src; lbImg.alt = w.cap; lbImg.width = w.photo.w; lbImg.height = w.photo.h; lbImg.style.background = 'transparent';
+      document.getElementById('lb-cap').innerHTML = '<span class="t">' + esc(w.cap) + '</span>' + (w.sub ? '<span class="cartel">' + esc(w.sub) + '</span>' : '');
+    } else {
     lbImg.src = 'img/o/' + w.slug + '.jpg'; lbImg.alt = alt(w); lbImg.width = w.fw; lbImg.height = w.fh; lbImg.style.background = w.bg;
     document.getElementById('lb-cap').innerHTML = '<span class="t"><em>' + esc(w.t) + '</em>, ' + w.y + '</span><span class="cartel">' + esc(cartel(w)) + '</span>';
+    }
     document.getElementById('lb-count').textContent = (lbI + 1) + ' / ' + lbList.length;
   }
   function openLb(slug){ lastFocus = document.activeElement; lbList = contextList(slug); lbI = lbList.findIndex(function(w){ return w.slug === slug; }); showLb(); lb.hidden = false; document.body.style.overflow = 'hidden'; document.getElementById('lb-close').focus(); }
+  function openPhotos(ref){
+    var k = ref.split(':'), x = EXPO.liste[+k[0]]; if (!x) return;
+    lastFocus = document.activeElement;
+    lbList = x.photos.map(function(p){ return {photo: p, cap: x.titre + (x.lieu ? ', ' + x.lieu : ''), sub: [x.date, x.organisateur].filter(Boolean).join(' · ')}; });
+    lbI = +k[1] || 0; showLb(); lb.hidden = false; document.body.style.overflow = 'hidden'; document.getElementById('lb-close').focus();
+  }
   function closeLb(){ lb.hidden = true; document.body.style.overflow = ''; if (lastFocus) lastFocus.focus(); }
   function stepLb(d){ lbI = (lbI + d + lbList.length) % lbList.length; showLb(); }
   function toggleZoom(){ var z = lbImg.classList.toggle('zoomed'); document.getElementById('lb-zoom').setAttribute('aria-pressed', String(z)); }
@@ -871,6 +897,8 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
     if (t.closest('[data-reset]')) { st.serie = 'Toutes'; st.annee = 'Toutes'; st.format = 'Tous'; st.tech = 'Toutes'; rerender('[data-f="annee"][data-v="Toutes"]'); return; }
     var z = t.closest('[data-zoom]');
     if (z) { openLb(z.dataset.zoom); return; }
+    var ph = t.closest('[data-photo]');
+    if (ph) { openPhotos(ph.dataset.photo); return; }
     if (t.closest('[data-newmsg]')) { st.sent = null; rerender('#c-nom'); return; }
     var br = t.closest('[data-browse]');
     if (br) { st.browse = br.dataset.browse; if (br.tagName === 'BUTTON') { rerender('[data-browse="' + st.browse + '"]'); return; } }

@@ -1,9 +1,10 @@
 // Assemble le site à partir des contenus (dossier content/) et des photos (dossier media/).
-// Netlify lance ce script à chaque modification enregistrée dans l'administration.
-// Résultat : le dossier dist/, qui est ce que Netlify met en ligne.
+// Cloudflare Pages lance ce script à chaque modification enregistrée dans l'administration.
+// Résultat : le dossier dist/, qui est ce que Cloudflare met en ligne.
 
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 import sharp from 'sharp';
 
 const OUT = 'dist';
@@ -29,6 +30,8 @@ const mediaPath = (p) => str(p).replace(/^\/+/, '');
 const toHex = (r, g, b) => '#' + [r, g, b].map((v) => Math.round(v).toString(16).padStart(2, '0')).join('');
 const escAttr = (s) => str(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 const asList = (v) => (Array.isArray(v) ? v : v ? [v] : []);
+// Rang d'un numéro d'œuvre : « 580 » → 580, « E2014-07 » → 7 (dernier nombre du numéro).
+const rank = (n) => { const m = str(n).match(/(\d+)(?!.*\d)/); return m ? Number(m[1]) : 0; };
 
 async function readJSON(file, fallback) {
   let text;
@@ -92,7 +95,9 @@ function findCanvas(img) {
     if (start !== null && (!best || arr.length - start > best[1] - best[0])) best = [start, arr.length];
     return best;
   };
-  const r = longestRun(rows, (v) => v.f > 0.5);
+  // Toile très étroite (par exemple 250 × 90) : elle n'occupe pas la moitié de la largeur de la photo.
+  const rowMax = Math.max(...rows.map((v) => v.f));
+  const r = longestRun(rows, (v) => v.f > 0.5) || (rowMax > 0.25 ? longestRun(rows, (v) => v.f > rowMax * 0.6) : null);
   if (!r) return { left: 0, top: 0, width: W, height: H, cropped: false };
   const top = rows[r[0]].y, bottom = Math.min(H, rows[r[1] - 1].y + sy);
   const cols = [];
@@ -106,7 +111,7 @@ function findCanvas(img) {
   const left = cols[c[0]].x, right = Math.min(W, cols[c[1] - 1].x + sx);
   const inset = Math.round(Math.min(right - left, bottom - top) * 0.004) + 2;
   const box = { left: left + inset, top: top + inset, width: right - left - 2 * inset, height: bottom - top - 2 * inset, cropped: true };
-  if (box.width * box.height < W * H * 0.2) return { left: 0, top: 0, width: W, height: H, cropped: false };
+  if (box.width * box.height < W * H * 0.12) return { left: 0, top: 0, width: W, height: H, cropped: false };
   return box;
 }
 
@@ -133,19 +138,32 @@ async function writeJpeg(pipeline, file, size) {
   return { w: info.width, h: info.height };
 }
 
-const decoded = new Map(); // slug -> { img, box }
+const sources = new Map(); // slug -> { file, recadrer }
 
-async function processWork(file, slug) {
+async function processWork(file, slug, recadrer = true) {
+  if (!recadrer) {
+    // Photo déjà recadrée : pas besoin de décoder l'image entière.
+    sources.set(slug, { file, recadrer });
+    const base = sharp(file).rotate();
+    const full = await writeJpeg(base.clone(), `${OUT}/img/o/${slug}.jpg`, 1600);
+    const small = await writeJpeg(base.clone(), `${OUT}/img/o/${slug}-s.jpg`, 720);
+    const { data, info } = await sharp(file).rotate().removeAlpha().resize(48, 48, { fit: 'fill' }).raw().toBuffer({ resolveWithObject: true });
+    let r = 0, g = 0, b = 0; const n = info.width * info.height;
+    for (let i = 0; i < data.length; i += info.channels) { r += data[i]; g += data[i + 1]; b += data[i + 2]; }
+    return { fw: full.w, fh: full.h, sw: small.w, sh: small.h, bg: toHex(r / n, g / n, b / n), recadree: false };
+  }
   const img = await decode(file);
-  const box = findCanvas(img);
-  decoded.set(slug, { img, box });
+  const box = recadrer ? findCanvas(img) : { left: 0, top: 0, width: img.width, height: img.height, cropped: false };
+  sources.set(slug, { file, recadrer });
   const full = await writeJpeg(region(img, box), `${OUT}/img/o/${slug}.jpg`, 1600);
   const small = await writeJpeg(region(img, box), `${OUT}/img/o/${slug}-s.jpg`, 720);
   return { fw: full.w, fh: full.h, sw: small.w, sh: small.h, bg: average(img, box).hex, recadree: box.cropped };
 }
 
 async function processHero(slug, position) {
-  const { img, box } = decoded.get(slug);
+  const { file, recadrer } = sources.get(slug);
+  const img = await decode(file);
+  const box = recadrer ? findCanvas(img) : { left: 0, top: 0, width: img.width, height: img.height };
   const bandH = Math.min(box.height, Math.round(box.width / 2));
   const top = box.top + Math.round((box.height - bandH) * position / 100);
   const band = { left: box.left, top, width: box.width, height: bandH };
@@ -160,10 +178,13 @@ async function processLoose(p) {
   if (!rel) return null;
   if (looseDone.has(rel)) return looseDone.get(rel);
   try {
-    const name = slugify(path.basename(rel, path.extname(rel)));
-    const info = await sharp(rel).rotate().resize({ width: 1400, height: 1400, fit: 'inside', withoutEnlargement: true })
-      .flatten({ background: '#ffffff' }).jpeg({ quality: 84, progressive: true, mozjpeg: true }).toFile(`${OUT}/img/m/${name}.jpg`);
-    const out = { src: `img/m/${name}.jpg`, w: info.width, h: info.height };
+    const name = slugify(path.dirname(rel).replace(/^media\/?/, '') + '-' + path.basename(rel, path.extname(rel)));
+    const base = sharp(rel).rotate().flatten({ background: '#ffffff' });
+    const info = await base.clone().resize({ width: 1400, height: 1400, fit: 'inside', withoutEnlargement: true })
+      .jpeg({ quality: 84, progressive: true, mozjpeg: true }).toFile(`${OUT}/img/m/${name}.jpg`);
+    const small = await base.clone().resize({ width: 520, height: 520, fit: 'inside', withoutEnlargement: true })
+      .jpeg({ quality: 80, progressive: true, mozjpeg: true }).toFile(`${OUT}/img/m/${name}-s.jpg`);
+    const out = { src: `img/m/${name}.jpg`, w: info.width, h: info.height, s: `img/m/${name}-s.jpg`, sw: small.width, sh: small.height };
     looseDone.set(rel, out);
     return out;
   } catch {
@@ -201,6 +222,7 @@ async function main() {
   const works = [];
   const byNumero = new Map();
   const slugs = new Set();
+  const todo = [];
   for (const r of await readCollection('content/oeuvres')) {
     if (r.masquer === true) continue;
     const w = {
@@ -218,13 +240,26 @@ async function main() {
     let slug = slugify(w.n);
     while (slugs.has(slug)) slug += '-b';
     slugs.add(slug);
-    try { Object.assign(w, await processWork(photo, slug)); }
-    catch { warn(`Photo introuvable ou illisible pour « ${w.t} » (${photo}) : œuvre non publiée.`); slugs.delete(slug); continue; }
     w.slug = slug;
-    works.push(w);
-    if (!byNumero.has(w.n)) byNumero.set(w.n, w);
+    todo.push({ w, photo, recadrer: r.deja_recadree !== true });
   }
-  works.sort((a, b) => b.y - a.y || (parseFloat(b.n) || 0) - (parseFloat(a.n) || 0));
+  // Photos traitées plusieurs à la fois (plusieurs centaines d'œuvres).
+  const failed = new Set();
+  let next = 0;
+  const worker = async () => {
+    while (next < todo.length) {
+      const job = todo[next++];
+      try { Object.assign(job.w, await processWork(job.photo, job.w.slug, job.recadrer)); }
+      catch { warn(`Photo introuvable ou illisible pour « ${job.w.t} » (${job.photo}) : œuvre non publiée.`); failed.add(job); }
+    }
+  };
+  await Promise.all(Array.from({ length: Math.max(2, Math.min(6, os.availableParallelism ? os.availableParallelism() : os.cpus().length)) }, worker));
+  for (const job of todo) {
+    if (failed.has(job)) continue;
+    works.push(job.w);
+    if (!byNumero.has(job.w.n)) byNumero.set(job.w.n, job.w);
+  }
+  works.sort((a, b) => b.y - a.y || rank(b.n) - rank(a.n));
   const ref = (v) => byNumero.get(str(v));
   const refs = (v) => asList(v).map(ref).filter(Boolean).map((w) => w.slug);
   const yearRange = (ws) => {
@@ -321,9 +356,12 @@ async function main() {
     hero, works, series, years,
     accueil: sections,
     biographie: { intro: str(bio.intro), oeuvre: refs(bio.oeuvre)[0] || null,
+      portrait: bio.portrait ? await processLoose(bio.portrait) : null, legende: str(bio.legende_portrait),
       etapes: asList(bio.etapes).map((e) => ({ periode: str(e.periode), texte: str(e.texte) })).filter((e) => e.periode || e.texte) },
     expositions: { intro: str(expo.intro),
-      liste: asList(expo.liste).map((x) => ({ date: str(x.date), titre: str(x.titre), lieu: str(x.lieu), organisateur: str(x.organisateur) })).filter((x) => x.titre || x.date) }
+      liste: (await Promise.all(asList(expo.liste).map(async (x) => ({ date: str(x.date), titre: str(x.titre), lieu: str(x.lieu), organisateur: str(x.organisateur),
+        photos: (await Promise.all(asList(x.photos).map((p) => processLoose(typeof p === 'object' && p ? p.image : p)))).filter(Boolean) }))))
+        .filter((x) => x.titre || x.date) }
   };
 
   // Page HTML
