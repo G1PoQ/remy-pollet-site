@@ -5,49 +5,81 @@
       "date": "3 – 25 oct. 2020",
       "titre": "« Vibrations »",
       "lieu": "Tournai",
-      "organisateur": ""
+      "organisateur": "",
+      "photos": [
+        "/media/images/expositions/expo-tournai-1.jpg",
+        "/media/images/expositions/expotournai.jpg"
+      ]
     },
     {
       "date": "Avril 2020",
       "titre": "Sotheby's",
       "lieu": "",
-      "organisateur": ""
+      "organisateur": "",
+      "photos": [
+        "/media/images/expositions/sotherbys-avril-2020-01.jpg",
+        "/media/images/expositions/sotherbys-avril-2020-02.jpg"
+      ]
     },
     {
       "date": "2020",
       "titre": "Exposition",
       "lieu": "Paris",
-      "organisateur": "Galerie AR Fleury"
+      "organisateur": "Galerie AR Fleury",
+      "photos": [
+        "/media/images/expositions/galery-fleury-01.jpg",
+        "/media/images/expositions/galery-fleury-02.jpg",
+        "/media/images/expositions/galery-fleury-03.jpg",
+        "/media/images/expositions/galery-fleury-04.jpg"
+      ]
     },
     {
       "date": "25 avril 2018",
       "titre": "PAD Paris",
       "lieu": "Paris",
-      "organisateur": "Galerie Fleury"
+      "organisateur": "Galerie Fleury",
+      "photos": [
+        "/media/images/expositions/expo-paris-art-design.jpg"
+      ]
     },
     {
       "date": "Avril 2018",
       "titre": "BRAFA",
       "lieu": "Bruxelles",
-      "organisateur": ""
+      "organisateur": "",
+      "photos": [
+        "/media/images/expositions/photo-expo-bruxelle.jpg",
+        "/media/images/expositions/photo-expo-bruxelle-2.jpg"
+      ]
     },
     {
       "date": "2016",
       "titre": "Fall Show",
       "lieu": "San Francisco",
-      "organisateur": ""
+      "organisateur": "",
+      "photos": [
+        "/media/images/expositions/expo-fall-show-sf-portrait.jpg"
+      ]
     },
     {
       "date": "2016",
       "titre": "Grand Palais",
       "lieu": "Paris",
-      "organisateur": "Galerie B. Steinitz"
+      "organisateur": "Galerie B. Steinitz",
+      "photos": [
+        "/media/images/expositions/fullsizerender-1.jpg",
+        "/media/images/expositions/fullsizerender-3.jpg",
+        "/media/images/expositions/fullsizerender.jpg"
+      ]
     },
     {
       "date": "2016",
       "titre": "Masterpiece London",
       "lieu": "Londres",
-      "organisateur": "Galerie B. Steinitz"
+      "organisateur": "Galerie B. Steinitz",
+      "photos": [
+        "/media/images/expositions/fullsizerender-5.jpg"
+      ]
     }
   ]
 }
