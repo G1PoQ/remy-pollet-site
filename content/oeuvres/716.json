@@ -6,5 +6,6 @@
   "technique": "Huile sur toile",
   "hauteur": 130,
   "largeur": 98,
-  "photo": "/media/oeuvres/716-130x98-2024.jpg"
+  "photo": "/media/oeuvres/716-130x98-2024.jpg",
+  "rotation": "droite"
 }

@@ -6,5 +6,6 @@
   "technique": "Huile sur toile",
   "hauteur": 92,
   "largeur": 73,
-  "photo": "/media/oeuvres/671-92x73-2024.jpg"
+  "photo": "/media/oeuvres/671-92x73-2024.jpg",
+  "rotation": "gauche"
 }
