@@ -58,9 +58,22 @@ async function readCollection(dir) {
 
 /* ---------- Images ---------- */
 
+// Rotation choisie dans l'administration pour redresser une photo couchée.
+const ROTATIONS = { droite: 90, 'demi-tour': 180, gauche: 270 };
+const angleOf = (v) => {
+  if (typeof v === 'string' && ROTATIONS[v.trim()] !== undefined) return ROTATIONS[v.trim()];
+  const n = num(v); return n === null ? 0 : (((Math.round(n / 90) * 90) % 360) + 360) % 360;
+};
+
+// Ouvre une photo dans le bon sens : orientation de l'appareil, puis rotation demandée.
+async function oriented(file, angle = 0) {
+  if (!angle) return sharp(file).rotate();
+  return sharp(await sharp(file).rotate().toBuffer()).rotate(angle);
+}
+
 // Décode une photo (orientation corrigée) en pixels bruts RVB.
-async function decode(file) {
-  const { data, info } = await sharp(file).rotate().removeAlpha().raw().toBuffer({ resolveWithObject: true });
+async function decode(file, angle = 0) {
+  const { data, info } = await (await oriented(file, angle)).removeAlpha().raw().toBuffer({ resolveWithObject: true });
   return { data, width: info.width, height: info.height, channels: info.channels };
 }
 
@@ -138,31 +151,31 @@ async function writeJpeg(pipeline, file, size) {
   return { w: info.width, h: info.height };
 }
 
-const sources = new Map(); // slug -> { file, recadrer }
+const sources = new Map(); // slug -> { file, recadrer, angle }
 
-async function processWork(file, slug, recadrer = true) {
+async function processWork(file, slug, recadrer = true, angle = 0) {
   if (!recadrer) {
     // Photo déjà recadrée : pas besoin de décoder l'image entière.
-    sources.set(slug, { file, recadrer });
-    const base = sharp(file).rotate();
+    sources.set(slug, { file, recadrer, angle });
+    const base = await oriented(file, angle);
     const full = await writeJpeg(base.clone(), `${OUT}/img/o/${slug}.jpg`, 1600);
     const small = await writeJpeg(base.clone(), `${OUT}/img/o/${slug}-s.jpg`, 720);
-    const { data, info } = await sharp(file).rotate().removeAlpha().resize(48, 48, { fit: 'fill' }).raw().toBuffer({ resolveWithObject: true });
+    const { data, info } = await base.clone().removeAlpha().resize(48, 48, { fit: 'fill' }).raw().toBuffer({ resolveWithObject: true });
     let r = 0, g = 0, b = 0; const n = info.width * info.height;
     for (let i = 0; i < data.length; i += info.channels) { r += data[i]; g += data[i + 1]; b += data[i + 2]; }
     return { fw: full.w, fh: full.h, sw: small.w, sh: small.h, bg: toHex(r / n, g / n, b / n), recadree: false };
   }
-  const img = await decode(file);
+  const img = await decode(file, angle);
   const box = recadrer ? findCanvas(img) : { left: 0, top: 0, width: img.width, height: img.height, cropped: false };
-  sources.set(slug, { file, recadrer });
+  sources.set(slug, { file, recadrer, angle });
   const full = await writeJpeg(region(img, box), `${OUT}/img/o/${slug}.jpg`, 1600);
   const small = await writeJpeg(region(img, box), `${OUT}/img/o/${slug}-s.jpg`, 720);
   return { fw: full.w, fh: full.h, sw: small.w, sh: small.h, bg: average(img, box).hex, recadree: box.cropped };
 }
 
 async function processHero(slug, position) {
-  const { file, recadrer } = sources.get(slug);
-  const img = await decode(file);
+  const { file, recadrer, angle } = sources.get(slug);
+  const img = await decode(file, angle);
   const box = recadrer ? findCanvas(img) : { left: 0, top: 0, width: img.width, height: img.height };
   const bandH = Math.min(box.height, Math.round(box.width / 2));
   const top = box.top + Math.round((box.height - bandH) * position / 100);
@@ -241,7 +254,7 @@ async function main() {
     while (slugs.has(slug)) slug += '-b';
     slugs.add(slug);
     w.slug = slug;
-    todo.push({ w, photo, recadrer: r.deja_recadree !== true });
+    todo.push({ w, photo, recadrer: r.deja_recadree !== true, angle: angleOf(r.rotation) });
   }
   // Photos traitées plusieurs à la fois (plusieurs centaines d'œuvres).
   const failed = new Set();
@@ -249,7 +262,15 @@ async function main() {
   const worker = async () => {
     while (next < todo.length) {
       const job = todo[next++];
-      try { Object.assign(job.w, await processWork(job.photo, job.w.slug, job.recadrer)); }
+      try {
+        Object.assign(job.w, await processWork(job.photo, job.w.slug, job.recadrer, job.angle));
+        // Le format suit le sens de l'image : une œuvre en hauteur a sa plus grande mesure en hauteur.
+        const w = job.w, ratio = w.fw / w.fh;
+        if (w.h !== w.w && (ratio > 1.06 || ratio < 1 / 1.06) && (w.fh > w.fw) !== (w.h > w.w)) {
+          [w.h, w.w] = [w.w, w.h];
+          console.log(`Œuvre ${w.n} : hauteur et largeur inversées pour suivre le sens de la photo (${w.h} × ${w.w}).`);
+        }
+      }
       catch { warn(`Photo introuvable ou illisible pour « ${job.w.t} » (${job.photo}) : œuvre non publiée.`); failed.add(job); }
     }
   };

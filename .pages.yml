@@ -88,6 +88,15 @@ content:
         label: Photo déjà recadrée
         type: boolean
         description: "Laissez décoché pour une photo du photographe. Cochez seulement si la photo montre l'œuvre seule, sans fond blanc ni cartel (c'est le cas des encres et des dessins repris de l'ancien site)."
+      - name: rotation
+        label: Tourner la photo (facultatif)
+        type: select
+        description: "Pour redresser une photo couchée ou montrer l'œuvre dans l'autre sens. Laissez vide si la photo est dans le bon sens. La hauteur et la largeur affichées suivent le sens de la photo."
+        options:
+          values:
+            - { name: droite, label: "Un quart de tour vers la droite" }
+            - { name: gauche, label: "Un quart de tour vers la gauche" }
+            - { name: demi-tour, label: "Demi-tour (tête en bas)" }
       - name: numero
         label: Numéro
         type: string
