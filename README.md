@@ -9,7 +9,7 @@ Réglages du site › Contact.
 
 | Dossier ou fichier | Contenu | Modifié depuis l'administration |
 |---|---|---|
-| `content/oeuvres/` | Une fiche par œuvre (titre, numéro, année, série, format, photo…) | Catalogue › Œuvres |
+| `content/oeuvres/` | Une fiche par œuvre, rangée dans `huiles/`, `encres/<année>/` ou `dessins/` | Huiles, Encres de Chine, Dessins |
 | `content/series/` | Les séries et leur image de présentation | Catalogue › Séries |
 | `content/annees.json` | L'image de présentation de chaque année | Catalogue › Images des années |
 | `content/accueil.json` | Les sections de la page d'accueil, dans l'ordre | Pages › Accueil |

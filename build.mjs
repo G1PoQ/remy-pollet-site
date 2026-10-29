@@ -44,14 +44,19 @@ async function readJSON(file, fallback) {
   catch (e) { throw new Error(`Fichier mal formé : ${file} (${e.message})`); }
 }
 
+// Lit toutes les fiches JSON d'un dossier, sous-dossiers compris (huiles, encres/2014, dessins…).
 async function readCollection(dir) {
-  let names = [];
-  try { names = (await fs.readdir(dir)).filter((n) => n.endsWith('.json')).sort(); }
+  let entries = [];
+  try { entries = await fs.readdir(dir, { withFileTypes: true }); }
   catch { return []; }
+  entries.sort((a, b) => a.name.localeCompare(b.name));
   const items = [];
-  for (const n of names) {
-    try { items.push({ ...(await readJSON(path.join(dir, n))), _file: n }); }
-    catch (e) { warn(e.message + ' : ignoré.'); }
+  for (const e of entries) {
+    const p = path.join(dir, e.name);
+    if (e.isDirectory()) { items.push(...(await readCollection(p))); continue; }
+    if (!e.name.endsWith('.json')) continue;
+    try { items.push({ ...(await readJSON(p)), _file: path.relative('content', p) }); }
+    catch (err) { warn(err.message + ' : ignoré.'); }
   }
   return items;
 }

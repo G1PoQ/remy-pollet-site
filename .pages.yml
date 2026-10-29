@@ -37,7 +37,7 @@ components:
   choix_oeuvre:
     type: reference
     options:
-      collection: oeuvres
+      collection: huiles
       value: "{numero}"
       label: "n° {numero} · {titre} · {annee}"
       search: "numero,titre,serie"
@@ -59,10 +59,10 @@ content:
       - { name: textes, label: "Écrire un texte", type: text, readonly: true }
       - { name: probleme, label: "En cas de doute", type: text, readonly: true }
 
-  - name: oeuvres
-    label: Œuvres
+  - name: huiles
+    label: Huiles
     type: collection
-    path: content/oeuvres
+    path: content/oeuvres/huiles
     format: json
     filename: "{fields.numero}.json"
     operations:
@@ -159,6 +159,1011 @@ content:
         type: boolean
         description: "Cochez pour retirer l'œuvre du site. Décochez pour la remettre. Rien n'est effacé."
 
+  - name: encres
+    label: Encres de Chine
+    type: group
+    items:
+      - name: encres-2013
+        label: Encres 2013
+        type: collection
+        path: content/oeuvres/encres/2013
+        format: json
+        filename: "{fields.numero}.json"
+        operations:
+          rename: false
+          delete: false
+        view:
+          fields: [numero, titre, serie, annee]
+          primary: numero
+          sort: [annee, numero, serie]
+          search: [numero, titre, serie]
+          default:
+            sort: annee
+            order: desc
+        fields:
+          - name: photo
+            label: Photo
+            type: image
+            required: true
+            description: "Photo de l'encre. Si elle montre déjà la feuille seule (sans fond blanc ni cartel), cochez « Photo déjà recadrée » juste en dessous."
+            options:
+              media: oeuvres
+          - name: deja_recadree
+            label: Photo déjà recadrée
+            type: boolean
+            description: "Laissez décoché pour une photo du photographe. Cochez seulement si la photo montre l'œuvre seule, sans fond blanc ni cartel (c'est le cas des encres et des dessins repris de l'ancien site)."
+          - name: rotation
+            label: Tourner la photo (facultatif)
+            type: select
+            description: "Pour redresser une photo couchée ou montrer l'œuvre dans l'autre sens. Laissez vide si la photo est dans le bon sens. La hauteur et la largeur affichées suivent le sens de la photo."
+            options:
+              values:
+                - { name: droite, label: "Un quart de tour vers la droite" }
+                - { name: gauche, label: "Un quart de tour vers la gauche" }
+                - { name: demi-tour, label: "Demi-tour (tête en bas)" }
+          - name: numero
+            label: Numéro
+            type: string
+            required: true
+            description: "Le numéro inscrit sur le cartel. Exemple : 581."
+          - name: serie
+            label: Série
+            type: reference
+            description: "Choisissez dans la liste. Laissez vide si l'œuvre n'appartient à aucune série."
+            options:
+              collection: series
+              value: "{nom}"
+              label: "{nom}"
+          - name: annee
+            label: Année
+            type: number
+            required: true
+            description: "Exemple : 2025."
+            options:
+              min: 1950
+              max: 2100
+          - name: hauteur
+            label: Hauteur en cm
+            type: number
+            required: true
+            description: "Le premier chiffre du format. Pour 146 × 114, tapez 146."
+            options:
+              min: 1
+              max: 1000
+          - name: largeur
+            label: Largeur en cm
+            type: number
+            required: true
+            description: "Le second chiffre du format. Pour 146 × 114, tapez 114."
+            options:
+              min: 1
+              max: 1000
+          - name: titre
+            label: Titre (facultatif)
+            type: string
+            description: "Laissez vide pour reprendre le nom de la série."
+          - name: technique
+            label: Technique (facultatif)
+            type: select
+            description: "Choisissez « Encre de Chine sur papier »."
+            options:
+              values: [Huile sur toile, Encre de Chine sur papier, Feutre sur papier, Dessin, Autre]
+          - name: disponibilite
+            label: Disponibilité (facultatif)
+            type: select
+            description: "Laissez vide pour ne rien afficher sur le site."
+            options:
+              values: [Disponible, Réservée, Vendue, Collection privée, Sur demande]
+          - name: texte
+            label: Texte sur l'œuvre (facultatif)
+            type: text
+            description: "Affiché sur la fiche de l'œuvre. Une ligne vide sépare deux paragraphes."
+          - name: masquer
+            label: Masquer du site
+            type: boolean
+            description: "Cochez pour retirer l'œuvre du site. Décochez pour la remettre. Rien n'est effacé."
+
+      - name: encres-2014
+        label: Encres 2014
+        type: collection
+        path: content/oeuvres/encres/2014
+        format: json
+        filename: "{fields.numero}.json"
+        operations:
+          rename: false
+          delete: false
+        view:
+          fields: [numero, titre, serie, annee]
+          primary: numero
+          sort: [annee, numero, serie]
+          search: [numero, titre, serie]
+          default:
+            sort: annee
+            order: desc
+        fields:
+          - name: photo
+            label: Photo
+            type: image
+            required: true
+            description: "Photo de l'encre. Si elle montre déjà la feuille seule (sans fond blanc ni cartel), cochez « Photo déjà recadrée » juste en dessous."
+            options:
+              media: oeuvres
+          - name: deja_recadree
+            label: Photo déjà recadrée
+            type: boolean
+            description: "Laissez décoché pour une photo du photographe. Cochez seulement si la photo montre l'œuvre seule, sans fond blanc ni cartel (c'est le cas des encres et des dessins repris de l'ancien site)."
+          - name: rotation
+            label: Tourner la photo (facultatif)
+            type: select
+            description: "Pour redresser une photo couchée ou montrer l'œuvre dans l'autre sens. Laissez vide si la photo est dans le bon sens. La hauteur et la largeur affichées suivent le sens de la photo."
+            options:
+              values:
+                - { name: droite, label: "Un quart de tour vers la droite" }
+                - { name: gauche, label: "Un quart de tour vers la gauche" }
+                - { name: demi-tour, label: "Demi-tour (tête en bas)" }
+          - name: numero
+            label: Numéro
+            type: string
+            required: true
+            description: "Le numéro inscrit sur le cartel. Exemple : 581."
+          - name: serie
+            label: Série
+            type: reference
+            description: "Choisissez dans la liste. Laissez vide si l'œuvre n'appartient à aucune série."
+            options:
+              collection: series
+              value: "{nom}"
+              label: "{nom}"
+          - name: annee
+            label: Année
+            type: number
+            required: true
+            description: "Exemple : 2025."
+            options:
+              min: 1950
+              max: 2100
+          - name: hauteur
+            label: Hauteur en cm
+            type: number
+            required: true
+            description: "Le premier chiffre du format. Pour 146 × 114, tapez 146."
+            options:
+              min: 1
+              max: 1000
+          - name: largeur
+            label: Largeur en cm
+            type: number
+            required: true
+            description: "Le second chiffre du format. Pour 146 × 114, tapez 114."
+            options:
+              min: 1
+              max: 1000
+          - name: titre
+            label: Titre (facultatif)
+            type: string
+            description: "Laissez vide pour reprendre le nom de la série."
+          - name: technique
+            label: Technique (facultatif)
+            type: select
+            description: "Choisissez « Encre de Chine sur papier »."
+            options:
+              values: [Huile sur toile, Encre de Chine sur papier, Feutre sur papier, Dessin, Autre]
+          - name: disponibilite
+            label: Disponibilité (facultatif)
+            type: select
+            description: "Laissez vide pour ne rien afficher sur le site."
+            options:
+              values: [Disponible, Réservée, Vendue, Collection privée, Sur demande]
+          - name: texte
+            label: Texte sur l'œuvre (facultatif)
+            type: text
+            description: "Affiché sur la fiche de l'œuvre. Une ligne vide sépare deux paragraphes."
+          - name: masquer
+            label: Masquer du site
+            type: boolean
+            description: "Cochez pour retirer l'œuvre du site. Décochez pour la remettre. Rien n'est effacé."
+
+      - name: encres-2015
+        label: Encres 2015
+        type: collection
+        path: content/oeuvres/encres/2015
+        format: json
+        filename: "{fields.numero}.json"
+        operations:
+          rename: false
+          delete: false
+        view:
+          fields: [numero, titre, serie, annee]
+          primary: numero
+          sort: [annee, numero, serie]
+          search: [numero, titre, serie]
+          default:
+            sort: annee
+            order: desc
+        fields:
+          - name: photo
+            label: Photo
+            type: image
+            required: true
+            description: "Photo de l'encre. Si elle montre déjà la feuille seule (sans fond blanc ni cartel), cochez « Photo déjà recadrée » juste en dessous."
+            options:
+              media: oeuvres
+          - name: deja_recadree
+            label: Photo déjà recadrée
+            type: boolean
+            description: "Laissez décoché pour une photo du photographe. Cochez seulement si la photo montre l'œuvre seule, sans fond blanc ni cartel (c'est le cas des encres et des dessins repris de l'ancien site)."
+          - name: rotation
+            label: Tourner la photo (facultatif)
+            type: select
+            description: "Pour redresser une photo couchée ou montrer l'œuvre dans l'autre sens. Laissez vide si la photo est dans le bon sens. La hauteur et la largeur affichées suivent le sens de la photo."
+            options:
+              values:
+                - { name: droite, label: "Un quart de tour vers la droite" }
+                - { name: gauche, label: "Un quart de tour vers la gauche" }
+                - { name: demi-tour, label: "Demi-tour (tête en bas)" }
+          - name: numero
+            label: Numéro
+            type: string
+            required: true
+            description: "Le numéro inscrit sur le cartel. Exemple : 581."
+          - name: serie
+            label: Série
+            type: reference
+            description: "Choisissez dans la liste. Laissez vide si l'œuvre n'appartient à aucune série."
+            options:
+              collection: series
+              value: "{nom}"
+              label: "{nom}"
+          - name: annee
+            label: Année
+            type: number
+            required: true
+            description: "Exemple : 2025."
+            options:
+              min: 1950
+              max: 2100
+          - name: hauteur
+            label: Hauteur en cm
+            type: number
+            required: true
+            description: "Le premier chiffre du format. Pour 146 × 114, tapez 146."
+            options:
+              min: 1
+              max: 1000
+          - name: largeur
+            label: Largeur en cm
+            type: number
+            required: true
+            description: "Le second chiffre du format. Pour 146 × 114, tapez 114."
+            options:
+              min: 1
+              max: 1000
+          - name: titre
+            label: Titre (facultatif)
+            type: string
+            description: "Laissez vide pour reprendre le nom de la série."
+          - name: technique
+            label: Technique (facultatif)
+            type: select
+            description: "Choisissez « Encre de Chine sur papier »."
+            options:
+              values: [Huile sur toile, Encre de Chine sur papier, Feutre sur papier, Dessin, Autre]
+          - name: disponibilite
+            label: Disponibilité (facultatif)
+            type: select
+            description: "Laissez vide pour ne rien afficher sur le site."
+            options:
+              values: [Disponible, Réservée, Vendue, Collection privée, Sur demande]
+          - name: texte
+            label: Texte sur l'œuvre (facultatif)
+            type: text
+            description: "Affiché sur la fiche de l'œuvre. Une ligne vide sépare deux paragraphes."
+          - name: masquer
+            label: Masquer du site
+            type: boolean
+            description: "Cochez pour retirer l'œuvre du site. Décochez pour la remettre. Rien n'est effacé."
+
+      - name: encres-2016
+        label: Encres 2016
+        type: collection
+        path: content/oeuvres/encres/2016
+        format: json
+        filename: "{fields.numero}.json"
+        operations:
+          rename: false
+          delete: false
+        view:
+          fields: [numero, titre, serie, annee]
+          primary: numero
+          sort: [annee, numero, serie]
+          search: [numero, titre, serie]
+          default:
+            sort: annee
+            order: desc
+        fields:
+          - name: photo
+            label: Photo
+            type: image
+            required: true
+            description: "Photo de l'encre. Si elle montre déjà la feuille seule (sans fond blanc ni cartel), cochez « Photo déjà recadrée » juste en dessous."
+            options:
+              media: oeuvres
+          - name: deja_recadree
+            label: Photo déjà recadrée
+            type: boolean
+            description: "Laissez décoché pour une photo du photographe. Cochez seulement si la photo montre l'œuvre seule, sans fond blanc ni cartel (c'est le cas des encres et des dessins repris de l'ancien site)."
+          - name: rotation
+            label: Tourner la photo (facultatif)
+            type: select
+            description: "Pour redresser une photo couchée ou montrer l'œuvre dans l'autre sens. Laissez vide si la photo est dans le bon sens. La hauteur et la largeur affichées suivent le sens de la photo."
+            options:
+              values:
+                - { name: droite, label: "Un quart de tour vers la droite" }
+                - { name: gauche, label: "Un quart de tour vers la gauche" }
+                - { name: demi-tour, label: "Demi-tour (tête en bas)" }
+          - name: numero
+            label: Numéro
+            type: string
+            required: true
+            description: "Le numéro inscrit sur le cartel. Exemple : 581."
+          - name: serie
+            label: Série
+            type: reference
+            description: "Choisissez dans la liste. Laissez vide si l'œuvre n'appartient à aucune série."
+            options:
+              collection: series
+              value: "{nom}"
+              label: "{nom}"
+          - name: annee
+            label: Année
+            type: number
+            required: true
+            description: "Exemple : 2025."
+            options:
+              min: 1950
+              max: 2100
+          - name: hauteur
+            label: Hauteur en cm
+            type: number
+            required: true
+            description: "Le premier chiffre du format. Pour 146 × 114, tapez 146."
+            options:
+              min: 1
+              max: 1000
+          - name: largeur
+            label: Largeur en cm
+            type: number
+            required: true
+            description: "Le second chiffre du format. Pour 146 × 114, tapez 114."
+            options:
+              min: 1
+              max: 1000
+          - name: titre
+            label: Titre (facultatif)
+            type: string
+            description: "Laissez vide pour reprendre le nom de la série."
+          - name: technique
+            label: Technique (facultatif)
+            type: select
+            description: "Choisissez « Encre de Chine sur papier »."
+            options:
+              values: [Huile sur toile, Encre de Chine sur papier, Feutre sur papier, Dessin, Autre]
+          - name: disponibilite
+            label: Disponibilité (facultatif)
+            type: select
+            description: "Laissez vide pour ne rien afficher sur le site."
+            options:
+              values: [Disponible, Réservée, Vendue, Collection privée, Sur demande]
+          - name: texte
+            label: Texte sur l'œuvre (facultatif)
+            type: text
+            description: "Affiché sur la fiche de l'œuvre. Une ligne vide sépare deux paragraphes."
+          - name: masquer
+            label: Masquer du site
+            type: boolean
+            description: "Cochez pour retirer l'œuvre du site. Décochez pour la remettre. Rien n'est effacé."
+
+      - name: encres-2017
+        label: Encres 2017
+        type: collection
+        path: content/oeuvres/encres/2017
+        format: json
+        filename: "{fields.numero}.json"
+        operations:
+          rename: false
+          delete: false
+        view:
+          fields: [numero, titre, serie, annee]
+          primary: numero
+          sort: [annee, numero, serie]
+          search: [numero, titre, serie]
+          default:
+            sort: annee
+            order: desc
+        fields:
+          - name: photo
+            label: Photo
+            type: image
+            required: true
+            description: "Photo de l'encre. Si elle montre déjà la feuille seule (sans fond blanc ni cartel), cochez « Photo déjà recadrée » juste en dessous."
+            options:
+              media: oeuvres
+          - name: deja_recadree
+            label: Photo déjà recadrée
+            type: boolean
+            description: "Laissez décoché pour une photo du photographe. Cochez seulement si la photo montre l'œuvre seule, sans fond blanc ni cartel (c'est le cas des encres et des dessins repris de l'ancien site)."
+          - name: rotation
+            label: Tourner la photo (facultatif)
+            type: select
+            description: "Pour redresser une photo couchée ou montrer l'œuvre dans l'autre sens. Laissez vide si la photo est dans le bon sens. La hauteur et la largeur affichées suivent le sens de la photo."
+            options:
+              values:
+                - { name: droite, label: "Un quart de tour vers la droite" }
+                - { name: gauche, label: "Un quart de tour vers la gauche" }
+                - { name: demi-tour, label: "Demi-tour (tête en bas)" }
+          - name: numero
+            label: Numéro
+            type: string
+            required: true
+            description: "Le numéro inscrit sur le cartel. Exemple : 581."
+          - name: serie
+            label: Série
+            type: reference
+            description: "Choisissez dans la liste. Laissez vide si l'œuvre n'appartient à aucune série."
+            options:
+              collection: series
+              value: "{nom}"
+              label: "{nom}"
+          - name: annee
+            label: Année
+            type: number
+            required: true
+            description: "Exemple : 2025."
+            options:
+              min: 1950
+              max: 2100
+          - name: hauteur
+            label: Hauteur en cm
+            type: number
+            required: true
+            description: "Le premier chiffre du format. Pour 146 × 114, tapez 146."
+            options:
+              min: 1
+              max: 1000
+          - name: largeur
+            label: Largeur en cm
+            type: number
+            required: true
+            description: "Le second chiffre du format. Pour 146 × 114, tapez 114."
+            options:
+              min: 1
+              max: 1000
+          - name: titre
+            label: Titre (facultatif)
+            type: string
+            description: "Laissez vide pour reprendre le nom de la série."
+          - name: technique
+            label: Technique (facultatif)
+            type: select
+            description: "Choisissez « Encre de Chine sur papier »."
+            options:
+              values: [Huile sur toile, Encre de Chine sur papier, Feutre sur papier, Dessin, Autre]
+          - name: disponibilite
+            label: Disponibilité (facultatif)
+            type: select
+            description: "Laissez vide pour ne rien afficher sur le site."
+            options:
+              values: [Disponible, Réservée, Vendue, Collection privée, Sur demande]
+          - name: texte
+            label: Texte sur l'œuvre (facultatif)
+            type: text
+            description: "Affiché sur la fiche de l'œuvre. Une ligne vide sépare deux paragraphes."
+          - name: masquer
+            label: Masquer du site
+            type: boolean
+            description: "Cochez pour retirer l'œuvre du site. Décochez pour la remettre. Rien n'est effacé."
+
+      - name: encres-2018
+        label: Encres 2018
+        type: collection
+        path: content/oeuvres/encres/2018
+        format: json
+        filename: "{fields.numero}.json"
+        operations:
+          rename: false
+          delete: false
+        view:
+          fields: [numero, titre, serie, annee]
+          primary: numero
+          sort: [annee, numero, serie]
+          search: [numero, titre, serie]
+          default:
+            sort: annee
+            order: desc
+        fields:
+          - name: photo
+            label: Photo
+            type: image
+            required: true
+            description: "Photo de l'encre. Si elle montre déjà la feuille seule (sans fond blanc ni cartel), cochez « Photo déjà recadrée » juste en dessous."
+            options:
+              media: oeuvres
+          - name: deja_recadree
+            label: Photo déjà recadrée
+            type: boolean
+            description: "Laissez décoché pour une photo du photographe. Cochez seulement si la photo montre l'œuvre seule, sans fond blanc ni cartel (c'est le cas des encres et des dessins repris de l'ancien site)."
+          - name: rotation
+            label: Tourner la photo (facultatif)
+            type: select
+            description: "Pour redresser une photo couchée ou montrer l'œuvre dans l'autre sens. Laissez vide si la photo est dans le bon sens. La hauteur et la largeur affichées suivent le sens de la photo."
+            options:
+              values:
+                - { name: droite, label: "Un quart de tour vers la droite" }
+                - { name: gauche, label: "Un quart de tour vers la gauche" }
+                - { name: demi-tour, label: "Demi-tour (tête en bas)" }
+          - name: numero
+            label: Numéro
+            type: string
+            required: true
+            description: "Le numéro inscrit sur le cartel. Exemple : 581."
+          - name: serie
+            label: Série
+            type: reference
+            description: "Choisissez dans la liste. Laissez vide si l'œuvre n'appartient à aucune série."
+            options:
+              collection: series
+              value: "{nom}"
+              label: "{nom}"
+          - name: annee
+            label: Année
+            type: number
+            required: true
+            description: "Exemple : 2025."
+            options:
+              min: 1950
+              max: 2100
+          - name: hauteur
+            label: Hauteur en cm
+            type: number
+            required: true
+            description: "Le premier chiffre du format. Pour 146 × 114, tapez 146."
+            options:
+              min: 1
+              max: 1000
+          - name: largeur
+            label: Largeur en cm
+            type: number
+            required: true
+            description: "Le second chiffre du format. Pour 146 × 114, tapez 114."
+            options:
+              min: 1
+              max: 1000
+          - name: titre
+            label: Titre (facultatif)
+            type: string
+            description: "Laissez vide pour reprendre le nom de la série."
+          - name: technique
+            label: Technique (facultatif)
+            type: select
+            description: "Choisissez « Encre de Chine sur papier »."
+            options:
+              values: [Huile sur toile, Encre de Chine sur papier, Feutre sur papier, Dessin, Autre]
+          - name: disponibilite
+            label: Disponibilité (facultatif)
+            type: select
+            description: "Laissez vide pour ne rien afficher sur le site."
+            options:
+              values: [Disponible, Réservée, Vendue, Collection privée, Sur demande]
+          - name: texte
+            label: Texte sur l'œuvre (facultatif)
+            type: text
+            description: "Affiché sur la fiche de l'œuvre. Une ligne vide sépare deux paragraphes."
+          - name: masquer
+            label: Masquer du site
+            type: boolean
+            description: "Cochez pour retirer l'œuvre du site. Décochez pour la remettre. Rien n'est effacé."
+
+      - name: encres-2019
+        label: Encres 2019
+        type: collection
+        path: content/oeuvres/encres/2019
+        format: json
+        filename: "{fields.numero}.json"
+        operations:
+          rename: false
+          delete: false
+        view:
+          fields: [numero, titre, serie, annee]
+          primary: numero
+          sort: [annee, numero, serie]
+          search: [numero, titre, serie]
+          default:
+            sort: annee
+            order: desc
+        fields:
+          - name: photo
+            label: Photo
+            type: image
+            required: true
+            description: "Photo de l'encre. Si elle montre déjà la feuille seule (sans fond blanc ni cartel), cochez « Photo déjà recadrée » juste en dessous."
+            options:
+              media: oeuvres
+          - name: deja_recadree
+            label: Photo déjà recadrée
+            type: boolean
+            description: "Laissez décoché pour une photo du photographe. Cochez seulement si la photo montre l'œuvre seule, sans fond blanc ni cartel (c'est le cas des encres et des dessins repris de l'ancien site)."
+          - name: rotation
+            label: Tourner la photo (facultatif)
+            type: select
+            description: "Pour redresser une photo couchée ou montrer l'œuvre dans l'autre sens. Laissez vide si la photo est dans le bon sens. La hauteur et la largeur affichées suivent le sens de la photo."
+            options:
+              values:
+                - { name: droite, label: "Un quart de tour vers la droite" }
+                - { name: gauche, label: "Un quart de tour vers la gauche" }
+                - { name: demi-tour, label: "Demi-tour (tête en bas)" }
+          - name: numero
+            label: Numéro
+            type: string
+            required: true
+            description: "Le numéro inscrit sur le cartel. Exemple : 581."
+          - name: serie
+            label: Série
+            type: reference
+            description: "Choisissez dans la liste. Laissez vide si l'œuvre n'appartient à aucune série."
+            options:
+              collection: series
+              value: "{nom}"
+              label: "{nom}"
+          - name: annee
+            label: Année
+            type: number
+            required: true
+            description: "Exemple : 2025."
+            options:
+              min: 1950
+              max: 2100
+          - name: hauteur
+            label: Hauteur en cm
+            type: number
+            required: true
+            description: "Le premier chiffre du format. Pour 146 × 114, tapez 146."
+            options:
+              min: 1
+              max: 1000
+          - name: largeur
+            label: Largeur en cm
+            type: number
+            required: true
+            description: "Le second chiffre du format. Pour 146 × 114, tapez 114."
+            options:
+              min: 1
+              max: 1000
+          - name: titre
+            label: Titre (facultatif)
+            type: string
+            description: "Laissez vide pour reprendre le nom de la série."
+          - name: technique
+            label: Technique (facultatif)
+            type: select
+            description: "Choisissez « Encre de Chine sur papier »."
+            options:
+              values: [Huile sur toile, Encre de Chine sur papier, Feutre sur papier, Dessin, Autre]
+          - name: disponibilite
+            label: Disponibilité (facultatif)
+            type: select
+            description: "Laissez vide pour ne rien afficher sur le site."
+            options:
+              values: [Disponible, Réservée, Vendue, Collection privée, Sur demande]
+          - name: texte
+            label: Texte sur l'œuvre (facultatif)
+            type: text
+            description: "Affiché sur la fiche de l'œuvre. Une ligne vide sépare deux paragraphes."
+          - name: masquer
+            label: Masquer du site
+            type: boolean
+            description: "Cochez pour retirer l'œuvre du site. Décochez pour la remettre. Rien n'est effacé."
+
+      - name: encres-2020
+        label: Encres 2020
+        type: collection
+        path: content/oeuvres/encres/2020
+        format: json
+        filename: "{fields.numero}.json"
+        operations:
+          rename: false
+          delete: false
+        view:
+          fields: [numero, titre, serie, annee]
+          primary: numero
+          sort: [annee, numero, serie]
+          search: [numero, titre, serie]
+          default:
+            sort: annee
+            order: desc
+        fields:
+          - name: photo
+            label: Photo
+            type: image
+            required: true
+            description: "Photo de l'encre. Si elle montre déjà la feuille seule (sans fond blanc ni cartel), cochez « Photo déjà recadrée » juste en dessous."
+            options:
+              media: oeuvres
+          - name: deja_recadree
+            label: Photo déjà recadrée
+            type: boolean
+            description: "Laissez décoché pour une photo du photographe. Cochez seulement si la photo montre l'œuvre seule, sans fond blanc ni cartel (c'est le cas des encres et des dessins repris de l'ancien site)."
+          - name: rotation
+            label: Tourner la photo (facultatif)
+            type: select
+            description: "Pour redresser une photo couchée ou montrer l'œuvre dans l'autre sens. Laissez vide si la photo est dans le bon sens. La hauteur et la largeur affichées suivent le sens de la photo."
+            options:
+              values:
+                - { name: droite, label: "Un quart de tour vers la droite" }
+                - { name: gauche, label: "Un quart de tour vers la gauche" }
+                - { name: demi-tour, label: "Demi-tour (tête en bas)" }
+          - name: numero
+            label: Numéro
+            type: string
+            required: true
+            description: "Le numéro inscrit sur le cartel. Exemple : 581."
+          - name: serie
+            label: Série
+            type: reference
+            description: "Choisissez dans la liste. Laissez vide si l'œuvre n'appartient à aucune série."
+            options:
+              collection: series
+              value: "{nom}"
+              label: "{nom}"
+          - name: annee
+            label: Année
+            type: number
+            required: true
+            description: "Exemple : 2025."
+            options:
+              min: 1950
+              max: 2100
+          - name: hauteur
+            label: Hauteur en cm
+            type: number
+            required: true
+            description: "Le premier chiffre du format. Pour 146 × 114, tapez 146."
+            options:
+              min: 1
+              max: 1000
+          - name: largeur
+            label: Largeur en cm
+            type: number
+            required: true
+            description: "Le second chiffre du format. Pour 146 × 114, tapez 114."
+            options:
+              min: 1
+              max: 1000
+          - name: titre
+            label: Titre (facultatif)
+            type: string
+            description: "Laissez vide pour reprendre le nom de la série."
+          - name: technique
+            label: Technique (facultatif)
+            type: select
+            description: "Choisissez « Encre de Chine sur papier »."
+            options:
+              values: [Huile sur toile, Encre de Chine sur papier, Feutre sur papier, Dessin, Autre]
+          - name: disponibilite
+            label: Disponibilité (facultatif)
+            type: select
+            description: "Laissez vide pour ne rien afficher sur le site."
+            options:
+              values: [Disponible, Réservée, Vendue, Collection privée, Sur demande]
+          - name: texte
+            label: Texte sur l'œuvre (facultatif)
+            type: text
+            description: "Affiché sur la fiche de l'œuvre. Une ligne vide sépare deux paragraphes."
+          - name: masquer
+            label: Masquer du site
+            type: boolean
+            description: "Cochez pour retirer l'œuvre du site. Décochez pour la remettre. Rien n'est effacé."
+
+      - name: encres-autres
+        label: Encres, autres années
+        description: "Pour ajouter une encre d'une autre année que 2013 à 2020."
+        type: collection
+        path: content/oeuvres/encres/autres
+        format: json
+        filename: "{fields.numero}.json"
+        operations:
+          rename: false
+          delete: false
+        view:
+          fields: [numero, titre, serie, annee]
+          primary: numero
+          sort: [annee, numero, serie]
+          search: [numero, titre, serie]
+          default:
+            sort: annee
+            order: desc
+        fields:
+          - name: photo
+            label: Photo
+            type: image
+            required: true
+            description: "Photo de l'encre. Si elle montre déjà la feuille seule (sans fond blanc ni cartel), cochez « Photo déjà recadrée » juste en dessous."
+            options:
+              media: oeuvres
+          - name: deja_recadree
+            label: Photo déjà recadrée
+            type: boolean
+            description: "Laissez décoché pour une photo du photographe. Cochez seulement si la photo montre l'œuvre seule, sans fond blanc ni cartel (c'est le cas des encres et des dessins repris de l'ancien site)."
+          - name: rotation
+            label: Tourner la photo (facultatif)
+            type: select
+            description: "Pour redresser une photo couchée ou montrer l'œuvre dans l'autre sens. Laissez vide si la photo est dans le bon sens. La hauteur et la largeur affichées suivent le sens de la photo."
+            options:
+              values:
+                - { name: droite, label: "Un quart de tour vers la droite" }
+                - { name: gauche, label: "Un quart de tour vers la gauche" }
+                - { name: demi-tour, label: "Demi-tour (tête en bas)" }
+          - name: numero
+            label: Numéro
+            type: string
+            required: true
+            description: "Le numéro inscrit sur le cartel. Exemple : 581."
+          - name: serie
+            label: Série
+            type: reference
+            description: "Choisissez dans la liste. Laissez vide si l'œuvre n'appartient à aucune série."
+            options:
+              collection: series
+              value: "{nom}"
+              label: "{nom}"
+          - name: annee
+            label: Année
+            type: number
+            required: true
+            description: "Exemple : 2025."
+            options:
+              min: 1950
+              max: 2100
+          - name: hauteur
+            label: Hauteur en cm
+            type: number
+            required: true
+            description: "Le premier chiffre du format. Pour 146 × 114, tapez 146."
+            options:
+              min: 1
+              max: 1000
+          - name: largeur
+            label: Largeur en cm
+            type: number
+            required: true
+            description: "Le second chiffre du format. Pour 146 × 114, tapez 114."
+            options:
+              min: 1
+              max: 1000
+          - name: titre
+            label: Titre (facultatif)
+            type: string
+            description: "Laissez vide pour reprendre le nom de la série."
+          - name: technique
+            label: Technique (facultatif)
+            type: select
+            description: "Choisissez « Encre de Chine sur papier »."
+            options:
+              values: [Huile sur toile, Encre de Chine sur papier, Feutre sur papier, Dessin, Autre]
+          - name: disponibilite
+            label: Disponibilité (facultatif)
+            type: select
+            description: "Laissez vide pour ne rien afficher sur le site."
+            options:
+              values: [Disponible, Réservée, Vendue, Collection privée, Sur demande]
+          - name: texte
+            label: Texte sur l'œuvre (facultatif)
+            type: text
+            description: "Affiché sur la fiche de l'œuvre. Une ligne vide sépare deux paragraphes."
+          - name: masquer
+            label: Masquer du site
+            type: boolean
+            description: "Cochez pour retirer l'œuvre du site. Décochez pour la remettre. Rien n'est effacé."
+
+  - name: dessins
+    label: Dessins
+    type: collection
+    path: content/oeuvres/dessins
+    format: json
+    filename: "{fields.numero}.json"
+    operations:
+      rename: false
+      delete: false
+    view:
+      fields: [numero, titre, serie, annee]
+      primary: numero
+      sort: [annee, numero, serie]
+      search: [numero, titre, serie]
+      default:
+        sort: annee
+        order: desc
+    fields:
+      - name: photo
+        label: Photo
+        type: image
+        required: true
+        description: "Photo de du dessin. Si elle montre déjà la feuille seule (sans fond blanc ni cartel), cochez « Photo déjà recadrée » juste en dessous."
+        options:
+          media: oeuvres
+      - name: deja_recadree
+        label: Photo déjà recadrée
+        type: boolean
+        description: "Laissez décoché pour une photo du photographe. Cochez seulement si la photo montre l'œuvre seule, sans fond blanc ni cartel (c'est le cas des encres et des dessins repris de l'ancien site)."
+      - name: rotation
+        label: Tourner la photo (facultatif)
+        type: select
+        description: "Pour redresser une photo couchée ou montrer l'œuvre dans l'autre sens. Laissez vide si la photo est dans le bon sens. La hauteur et la largeur affichées suivent le sens de la photo."
+        options:
+          values:
+            - { name: droite, label: "Un quart de tour vers la droite" }
+            - { name: gauche, label: "Un quart de tour vers la gauche" }
+            - { name: demi-tour, label: "Demi-tour (tête en bas)" }
+      - name: numero
+        label: Numéro
+        type: string
+        required: true
+        description: "Le numéro inscrit sur le cartel. Exemple : 581."
+      - name: serie
+        label: Série
+        type: reference
+        description: "Choisissez dans la liste. Laissez vide si l'œuvre n'appartient à aucune série."
+        options:
+          collection: series
+          value: "{nom}"
+          label: "{nom}"
+      - name: annee
+        label: Année
+        type: number
+        required: true
+        description: "Exemple : 2025."
+        options:
+          min: 1950
+          max: 2100
+      - name: hauteur
+        label: Hauteur en cm
+        type: number
+        required: true
+        description: "Le premier chiffre du format. Pour 146 × 114, tapez 146."
+        options:
+          min: 1
+          max: 1000
+      - name: largeur
+        label: Largeur en cm
+        type: number
+        required: true
+        description: "Le second chiffre du format. Pour 146 × 114, tapez 114."
+        options:
+          min: 1
+          max: 1000
+      - name: titre
+        label: Titre (facultatif)
+        type: string
+        description: "Laissez vide pour reprendre le nom de la série."
+      - name: technique
+        label: Technique (facultatif)
+        type: select
+        description: "Choisissez « Feutre sur papier » ou « Encre de Chine sur papier »."
+        options:
+          values: [Huile sur toile, Encre de Chine sur papier, Feutre sur papier, Dessin, Autre]
+      - name: disponibilite
+        label: Disponibilité (facultatif)
+        type: select
+        description: "Laissez vide pour ne rien afficher sur le site."
+        options:
+          values: [Disponible, Réservée, Vendue, Collection privée, Sur demande]
+      - name: texte
+        label: Texte sur l'œuvre (facultatif)
+        type: text
+        description: "Affiché sur la fiche de l'œuvre. Une ligne vide sépare deux paragraphes."
+      - name: masquer
+        label: Masquer du site
+        type: boolean
+        description: "Cochez pour retirer l'œuvre du site. Décochez pour la remettre. Rien n'est effacé."
+
   - name: series
     label: Séries
     type: collection
@@ -235,7 +1240,7 @@ content:
                     label: Œuvres accrochées (de 2 à 6)
                     type: reference
                     options:
-                      collection: oeuvres
+                      collection: huiles
                       multiple: true
                       max: 6
                       value: "{numero}"
@@ -310,7 +1315,7 @@ content:
                     type: reference
                     description: "Laissez vide pour montrer les plus récentes."
                     options:
-                      collection: oeuvres
+                      collection: huiles
                       multiple: true
                       value: "{numero}"
                       label: "n° {numero} · {titre} · {annee}"
