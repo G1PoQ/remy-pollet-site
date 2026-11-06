@@ -183,16 +183,21 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
 .eyebrow-lg{font-size:15px;letter-spacing:.24em}
 .home-head h2.display{font-size:clamp(32px,3.4vw,46px);line-height:1.1}
 .home-head .lede{font-size:16.5px}
-/* Publication : livre à gauche ; texte à droite, au tiers (1/3 d'espace au-dessus, 2/3 en dessous),
-   son bord droit calé sur le dernier E de « Demander un exemplaire » ; liens en bas à droite */
-.pub-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:16px;align-items:start}
-.pub-book{justify-self:end}
-.pub-text{align-self:stretch;display:flex;flex-direction:column;align-items:flex-end}
+/* Publication : livre à gauche ; à droite, le texte au tiers (1/3 d'espace au-dessus, 2/3 en dessous)
+   et, sous le livre, les liens en bas à droite. Le texte prend la largeur des liens : il commence sous le F de « Feuilleter ». */
+.pub-body{display:grid;grid-template-columns:minmax(0,1fr) max-content;grid-template-rows:auto auto;column-gap:16px}
+.pub-book{grid-column:1;grid-row:1;justify-self:end}
+.pub-side{grid-column:2;grid-row:1 / 3;justify-self:end;display:grid;grid-template-rows:subgrid;grid-template-columns:max-content}
+.pub-text{grid-row:1;width:0;min-width:100%;display:flex;flex-direction:column}
 .pub-text::before{content:"";flex:1}
 .pub-text::after{content:"";flex:2}
-.pub-text .lede{font-size:16.5px;max-width:27.5em;text-align:justify;margin-right:calc(12.5px * .16)}
-@media (max-width:760px){.pub-body{grid-template-columns:minmax(0,1fr);row-gap:36px}.pub-book{justify-self:center}
-  .pub-text{align-items:flex-start}.pub-text::before,.pub-text::after{display:none}.pub-text .lede{text-align:left;margin-right:0}}
+.pub-text .lede{font-size:16.5px;max-width:none}
+.pub-side .home-links{grid-row:2}
+/* Sur ordinateur, textes de présentation de l'accueil plus grands (21 px) ; 16,5 px sur tablette et téléphone */
+@media (min-width:901px){.home-head .lede,.pub-text .lede{font-size:21px}}
+@media (max-width:900px){.pub-body{grid-template-columns:minmax(0,1fr);grid-template-rows:auto;row-gap:36px}.pub-book{justify-self:center}
+  .pub-side{grid-column:1;grid-row:2;display:flex;flex-direction:column}.pub-text::before,.pub-text::after{display:none}}
+@media (max-width:600px){.pub-side{justify-self:stretch}.pub-text{width:auto;min-width:0}}
 .filet{height:1px;border:0;margin:0;background:var(--line)}
 .row-works{display:flex;justify-content:center;align-items:flex-end;gap:clamp(28px,6vw,88px)}
 .row-works figure{margin:0;display:flex;flex-direction:column;gap:10px;min-width:0}
@@ -680,12 +685,12 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
         cover = '<div class="row-works"><figure><a' + (link || ' href="#oeuvres"') + '><img src="img/o/' + b.oeuvre + '-s.jpg" alt="" loading="lazy"></a></figure></div>';
       }
       var lede = b.texte ? '<p class="lede">' + inline(b.texte) + '</p>' : '';
+      var links = '<div class="home-links">' + (b.lien ? '<a class="link-caps strong"' + link + '><span>' + esc(b.libelle_bouton || 'Feuilleter') + ' ↗</span></a>' : '') +
+        (b.exemplaire ? '<a class="link-caps soft"' + ask + '><span>Demander un exemplaire</span></a>' : '') + '</div>';
       return '<section class="home-sec home-pub"><div class="wrap">' +
         '<div class="home-head"><div class="stack">' + (b.surtitre ? '<span class="eyebrow eyebrow-lg">' + esc(b.surtitre) + '</span>' : '') + (b.titre ? '<h2 class="display">' + inline(b.titre) + '</h2>' : '') + '</div>' +
           (cover ? '<span></span>' : (lede || '<span></span>')) + '</div>' +
-        (cover ? '<div class="pub-body"><div class="pub-book">' + cover + '</div><div class="pub-text">' + lede + '</div></div>' : '') +
-        '<div class="home-links">' + (b.lien ? '<a class="link-caps strong"' + link + '><span>' + esc(b.libelle_bouton || 'Feuilleter') + ' ↗</span></a>' : '') +
-          (b.exemplaire ? '<a class="link-caps soft"' + ask + '><span>Demander un exemplaire</span></a>' : '') + '</div>' +
+        (cover ? '<div class="pub-body"><div class="pub-book">' + cover + '</div><div class="pub-side"><div class="pub-text">' + lede + '</div>' + links + '</div></div>' : links) +
       '</div></section>';
     },
     citation: function(b){
