@@ -29,11 +29,13 @@ components:
     type: select
     options:
       values:
+        - { name: tout-en-haut, label: "Tout en haut de la toile" }
         - { name: haut, label: "Haut de la toile" }
         - { name: haut-centre, label: "Entre le haut et le centre" }
         - { name: centre, label: "Centre de la toile" }
         - { name: centre-bas, label: "Entre le centre et le bas" }
         - { name: bas, label: "Bas de la toile" }
+        - { name: tout-en-bas, label: "Tout en bas de la toile" }
   choix_oeuvre:
     type: reference
     options:
@@ -1237,7 +1239,7 @@ content:
                   - { name: titre, label: Titre, type: text, description: "Pour mettre un mot en italique, entourez-le d'astérisques : *le noir*." }
                   - { name: texte, label: Texte, type: text }
                   - name: oeuvres
-                    label: Œuvres accrochées (de 2 à 6)
+                    label: Œuvres présentées (3 conseillées, 6 au plus)
                     type: reference
                     options:
                       collection: huiles
@@ -1246,7 +1248,7 @@ content:
                       value: "{numero}"
                       label: "n° {numero} · {titre} · {annee}"
                       search: "numero,titre,serie"
-                  - { name: lien_formats, label: "Afficher le lien « Comparer tous les formats »", type: boolean }
+                  - { name: lien_formats, label: "Ajouter le lien « Comparer tous les formats »", type: boolean }
                   - { name: masquer, label: Masquer cette section, type: boolean }
               - name: catalogue
                 label: "Catalogue / publication"
@@ -1255,13 +1257,15 @@ content:
                   - { name: titre, label: Titre, type: text, description: "Pour mettre un mot en italique, entourez-le d'astérisques." }
                   - { name: texte, label: Texte, type: text }
                   - { name: lien, label: Lien vers le catalogue en ligne, type: string }
-                  - { name: libelle_bouton, label: Texte du bouton, type: string }
+                  - { name: libelle_bouton, label: Texte du lien, type: string, description: "Exemple : Feuilleter le catalogue." }
                   - name: couverture
                     label: Photo de la couverture (facultatif)
                     type: image
                     description: "Sans photo, une couverture est composée avec l'œuvre choisie ci-dessous."
                     options:
                       media: images
+                  - { name: legende, label: Légende sous la couverture (facultatif), type: string, description: "Par exemple le titre du livre." }
+                  - { name: sous_legende, label: Seconde ligne de légende (facultatif), type: string, description: "Par exemple : Catalogue des huiles, 2025." }
                   - { name: oeuvre, label: Œuvre pour la couverture, component: choix_oeuvre }
                   - { name: exemplaire, label: "Afficher « Demander un exemplaire »", type: boolean }
                   - { name: masquer, label: Masquer cette section, type: boolean }
@@ -1395,11 +1399,23 @@ content:
           - { name: nom, label: Nom affiché, type: string, required: true }
           - { name: sous_titre, label: Sous-titre de l'en-tête, type: string }
           - name: entete
-            label: Toile de l'en-tête
+            label: En-tête de l'accueil (diaporama)
             type: object
             fields:
-              - { name: oeuvre, label: Œuvre en fond, component: choix_oeuvre }
-              - { name: position, label: Partie de la toile montrée, component: cadrage, description: "La couleur du texte s'adapte toute seule à la toile." }
+              - name: diaporama
+                label: Toiles du diaporama
+                type: object
+                description: "Les toiles défilent dans cet ordre, en fondu. Sur une toile sombre, le nom s'écrit en blanc et un peu plus grand ; sur une toile claire, en noir et plus fin. Tout se règle seul."
+                list:
+                  collapsible:
+                    collapsed: true
+                    summary: "n° {oeuvre} · {cadrage}"
+                fields:
+                  - { name: oeuvre, label: Toile, component: choix_oeuvre }
+                  - { name: cadrage, label: Partie de la toile montrée, component: cadrage }
+              - { name: duree, label: Durée d'affichage de chaque toile (en secondes), type: number, description: "6 si vide. Entre 3 et 30.", options: { min: 3, max: 30 } }
+              - { name: oeuvre, label: Toile utilisée si le diaporama est vide, component: choix_oeuvre }
+              - { name: position, label: Partie de cette toile, component: cadrage }
           - name: contact
             label: Coordonnées de l'atelier
             type: object

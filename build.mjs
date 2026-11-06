@@ -19,7 +19,7 @@ const num = (v) => {
   return Number.isFinite(n) ? n : null;
 };
 // Cadrage d'un détail de toile : un choix nommé de l'administration, ou un pourcentage (anciens contenus).
-const CADRAGES = { haut: 15, 'haut-centre': 33, centre: 50, 'centre-bas': 67, bas: 85 };
+const CADRAGES = { 'tout-en-haut': 0, haut: 15, 'haut-centre': 33, centre: 50, 'centre-bas': 67, bas: 85, 'tout-en-bas': 100 };
 const pct = (v, fallback = 50) => {
   if (typeof v === 'string' && CADRAGES[v.trim()] !== undefined) return CADRAGES[v.trim()];
   const n = num(v); return n === null ? fallback : Math.max(0, Math.min(100, n));
@@ -178,16 +178,23 @@ async function processWork(file, slug, recadrer = true, angle = 0) {
   return { fw: full.w, fh: full.h, sw: small.w, sh: small.h, bg: average(img, box).hex, recadree: box.cropped };
 }
 
-async function processHero(slug, position) {
+// Une toile du diaporama de l'en-tête : une bande (3 de large pour 1 de haut) prise à la hauteur choisie.
+// La couleur du texte (et la taille du nom) dépend de la zone où il est posé : nom en haut à gauche, onglets en bas.
+async function processHero(slug, position, i) {
   const { file, recadrer, angle } = sources.get(slug);
   const img = await decode(file, angle);
   const box = recadrer ? findCanvas(img) : { left: 0, top: 0, width: img.width, height: img.height };
-  const bandH = Math.min(box.height, Math.round(box.width / 2));
+  const bandH = Math.min(box.height, Math.round(box.width / 3));
   const top = box.top + Math.round((box.height - bandH) * position / 100);
   const band = { left: box.left, top, width: box.width, height: bandH };
-  await region(img, band).resize({ width: 2000, withoutEnlargement: true })
-    .jpeg({ quality: 84, progressive: true, mozjpeg: true }).toFile(`${OUT}/img/entete.jpg`);
-  return average(img, band);
+  const src = `img/entete-${i + 1}.jpg`;
+  await region(img, band).resize({ width: 2200, withoutEnlargement: true })
+    .jpeg({ quality: 82, progressive: true, mozjpeg: true }).toFile(`${OUT}/${src}`);
+  const zone = (x, y, w, h) => ({ left: band.left + Math.round(band.width * x), top: band.top + Math.round(bandH * y),
+    width: Math.max(1, Math.round(band.width * w)), height: Math.max(1, Math.round(bandH * h)) });
+  const nom = average(img, zone(0, 0.12, 0.45, 0.42)), bas = average(img, zone(0, 0.78, 1, 0.2));
+  const lum = nom.lum * 0.65 + bas.lum * 0.35;
+  return { src, tone: lum < 0.55 ? 'dark' : 'light', bg: average(img, band).hex };
 }
 
 const looseDone = new Map();
@@ -326,15 +333,20 @@ async function main() {
     return { nom: String(y), count: ws.length, cover: { slug: cw.slug, pos: `50% ${pct(o ? o.cadrage : 50)}%` } };
   });
 
-  // En-tête
+  // En-tête : diaporama de toiles (à défaut, la toile seule, puis la première œuvre)
   const ent = site.entete || {};
-  const heroWork = ref(ent.oeuvre) || works[0];
+  let choix = asList(ent.diaporama).map((d) => ({ w: ref(d && d.oeuvre), position: pct(d && d.cadrage) })).filter((d) => d.w);
+  if (!choix.length && ref(ent.oeuvre)) choix = [{ w: ref(ent.oeuvre), position: pct(ent.position) }];
+  if (!choix.length && works[0]) choix = [{ w: works[0], position: 50 }];
   let hero = null;
-  if (heroWork) {
-    const position = pct(ent.position);
-    const tone = await processHero(heroWork.slug, position);
-    hero = { slug: heroWork.slug, src: 'img/entete.jpg', mobile: `img/o/${heroWork.slug}.jpg`, mpos: `50% ${position}%`,
-      tone: tone.lum < 0.5 ? 'dark' : 'light', bg: tone.hex };
+  if (choix.length) {
+    const slides = [];
+    for (const [i, d] of choix.slice(0, 12).entries()) {
+      try { slides.push({ slug: d.w.slug, ...(await processHero(d.w.slug, d.position, i)) }); }
+      catch (e) { warn(`Toile ${d.w.n} de l'en-tête illisible : ignorée.`); }
+    }
+    const duree = num(ent.duree);
+    if (slides.length) hero = { slides, duree: duree === null ? 6 : Math.max(3, Math.min(30, duree)) };
   }
 
   // Accueil
@@ -346,7 +358,8 @@ async function main() {
     const base = { type, surtitre: str(b.surtitre), titre: str(b.titre), texte: str(b.texte) };
     if (type === 'accrochage') sections.push({ ...base, oeuvres: refs(b.oeuvres).slice(0, 6), lien_formats: b.lien_formats !== false });
     else if (type === 'catalogue') sections.push({ ...base, lien: str(b.lien), libelle_bouton: str(b.libelle_bouton) || 'Feuilleter le catalogue',
-      couverture: b.couverture ? await processLoose(b.couverture) : null, oeuvre: refs(b.oeuvre)[0] || null, exemplaire: b.exemplaire !== false });
+      couverture: b.couverture ? await processLoose(b.couverture) : null, oeuvre: refs(b.oeuvre)[0] || null, exemplaire: b.exemplaire !== false,
+      legende: str(b.legende), sous_legende: str(b.sous_legende) });
     else if (type === 'citation') sections.push({ type, texte: str(b.texte), auteur: str(b.auteur) });
     else if (type === 'parcours') sections.push({ ...base, lien_bio: b.lien_bio !== false,
       etapes: asList(b.etapes).map((e) => ({ annee: str(e.annee), texte: str(e.texte) })).filter((e) => e.annee || e.texte) });

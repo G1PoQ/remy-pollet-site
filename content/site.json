@@ -2,6 +2,29 @@
   "nom": "Rémy Pollet",
   "sous_titre": "Peintre · Huiles, encres, dessins",
   "entete": {
+    "diaporama": [
+      {
+        "oeuvre": "580",
+        "cadrage": "centre"
+      },
+      {
+        "oeuvre": "646",
+        "cadrage": "centre-bas"
+      },
+      {
+        "oeuvre": "636",
+        "cadrage": "tout-en-bas"
+      },
+      {
+        "oeuvre": "614",
+        "cadrage": "centre"
+      },
+      {
+        "oeuvre": "631",
+        "cadrage": "centre"
+      }
+    ],
+    "duree": 6,
     "oeuvre": "580",
     "position": "centre"
   },

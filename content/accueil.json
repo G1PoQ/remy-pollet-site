@@ -6,12 +6,11 @@
       "titre": "La matière,\n*le noir,* la lumière.",
       "texte": "Des huiles asphaltiques de 1997 aux séries de 2025, Rémy Pollet travaille la surface de la toile : matité et brillance, opacité et transparence.",
       "oeuvres": [
-        "667",
         "636",
-        "580",
-        "669"
+        "667",
+        "580"
       ],
-      "lien_formats": true,
+      "lien_formats": false,
       "masquer": false
     },
     {
@@ -24,7 +23,9 @@
       "couverture": "/media/images/Capture d'écran 2026-10-22 163459.png",
       "oeuvre": "631",
       "exemplaire": true,
-      "masquer": false
+      "masquer": false,
+      "legende": "L'écho du geste",
+      "sous_legende": "Catalogue des huiles"
     },
     {
       "type": "citation",
@@ -60,7 +61,7 @@
         }
       ],
       "lien_bio": true,
-      "masquer": false
+      "masquer": true
     }
   ]
 }
