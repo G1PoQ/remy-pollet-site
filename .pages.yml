@@ -1356,7 +1356,7 @@ content:
           - name: video
             label: Vidéo (facultatif)
             type: file
-            description: "Placée entre l'introduction et les étapes. Fichier MP4, 25 Mo au maximum (au-delà, la vidéo n'est pas mise en ligne). Pour la retirer, videz ce champ."
+            description: "Placée en bas de la page, sous les étapes. Fichier MP4, 25 Mo au maximum (au-delà, la vidéo n'est pas mise en ligne). Pour la retirer, videz ce champ."
             options: { media: videos, extensions: [mp4, m4v, mov, webm] }
           - { name: affiche_video, label: "Image affichée avant la lecture (facultatif)", type: image, options: { media: images }, description: "Une image tirée du film. À défaut, la première image de la vidéo." }
           - { name: legende_video, label: Légende de la vidéo (facultatif), type: string, description: "La durée est ajoutée automatiquement." }

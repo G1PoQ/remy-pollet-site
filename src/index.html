@@ -374,8 +374,11 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
 .bio{display:flex;flex-wrap:wrap;gap:56px clamp(48px,6vw,96px);align-items:flex-start;padding-bottom:clamp(72px,9vw,112px)}
 .bio .timeline{flex:999 1 520px;min-width:0}
 .bio-main{flex:999 1 520px;min-width:0}
-/* Biographie : film entre l'introduction et les étapes, dans la largeur des étapes ; bouton de lecture rond, puis commandes du navigateur */
-.bio-film{margin:0 0 clamp(40px,5vw,64px);display:flex;flex-direction:column;gap:10px}
+/* Biographie : film en bas de page, dans la largeur des étapes ; bouton de lecture rond, puis commandes du navigateur */
+.bio.avec-film{padding-bottom:clamp(48px,6vw,80px)}
+.bio-bas{row-gap:0}
+.bio-espace{flex:1 1 300px;height:0}
+.bio-film{margin:0;display:flex;flex-direction:column;gap:10px}
 .film{position:relative;aspect-ratio:16/9;background:#0F0E0D;overflow:hidden}
 .film video{display:block;width:100%;height:100%;object-fit:contain;background:#0F0E0D}
 .film-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:0;border:0;background:transparent;cursor:pointer}
@@ -947,14 +950,16 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
       (cap ? '<figcaption class="cartel">' + cap + '</figcaption>' : '') + '</figure>';
   }
   function biographie(){
-    var w = BIO.oeuvre && byN[BIO.oeuvre];
+    var w = BIO.oeuvre && byN[BIO.oeuvre], film = bioFilm();
     return '<div class="wrap">' +
       '<div class="page-head">' + crumbs(['<span>Biographie</span>']) + '<h1 class="display">Biographie</h1>' + (BIO.intro ? '<p class="bio-intro">' + inline(BIO.intro) + '</p>' : '') + '</div>' +
-      '<div class="bio" style="padding-top:24px"><div class="bio-main">' + bioFilm() +
+      '<div class="bio' + (film ? ' avec-film' : '') + '" style="padding-top:24px"><div class="bio-main">' +
         '<ol class="timeline">' + BIO.etapes.map(function(e){ return '<li><b>' + esc(e.periode) + '</b><p>' + inline(e.texte) + '</p></li>'; }).join('') + '</ol></div>' +
         (BIO.portrait || w ? '<aside>' + (BIO.portrait ? '<figure class="portrait"><img src="' + BIO.portrait.src + '" width="' + BIO.portrait.w + '" height="' + BIO.portrait.h + '" alt="' + esc(BIO.legende || SITE.nom) + '" loading="lazy" decoding="async">' + (BIO.legende ? '<figcaption class="cartel">' + esc(BIO.legende) + '</figcaption>' : '') + '</figure>' : '') : '') +
         (w ? '<a class="card" href="#oeuvre-' + w.slug + '"><div class="niche"><div class="fit">' + img(w, '(max-width:900px) 80vw, 30vw') + '</div></div><div class="card-meta"><span class="card-title"><em>' + esc(w.t) + '</em>, ' + w.y + '</span><span class="cartel">' + esc(cartel(w)) + '</span></div></a>' : '') + (BIO.portrait || w ? '</aside>' : '') +
       '</div>' +
+      // Film en bas de page, dans la largeur des étapes (l'espace vide à droite répète la colonne du portrait)
+      (film ? '<div class="bio bio-bas"><div class="bio-main">' + film + '</div>' + (BIO.portrait || w ? '<div class="bio-espace" aria-hidden="true"></div>' : '') + '</div>' : '') +
     '</div>';
   }
 
