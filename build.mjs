@@ -180,7 +180,25 @@ async function processWork(file, slug, recadrer = true, angle = 0) {
 
 // Une toile du diaporama de l'en-tête : une bande (3 de large pour 1 de haut) prise à la hauteur choisie.
 // La couleur du texte (et la taille du nom) dépend de la zone où il est posé : nom en haut à gauche, onglets en bas.
-async function processHero(slug, position, i) {
+// Éclaircit les blancs de la bande d'en-tête. Les toiles sont photographiées sur un fond blanc :
+// leurs blancs sortent gris (autour de 205 sur 255). On remonte les blancs presque au blanc de la page,
+// sans toucher aux noirs. Une toile sans vrais blancs (toile sombre) est laissée telle quelle.
+async function brighten(pipeline) {
+  const { data, info } = await pipeline.raw().toBuffer({ resolveWithObject: true });
+  const C = info.channels, n = info.width * info.height;
+  const hist = new Uint32Array(256);
+  for (let i = 0; i < data.length; i += C) hist[Math.min(255, Math.round(lum(data, i)))]++;
+  const pct = (p) => { let s = 0; for (let v = 0; v < 256; v++) { s += hist[v]; if (s >= n * p) return v; } return 255; };
+  const raw = (d) => sharp(d, { raw: { width: info.width, height: info.height, channels: C } });
+  const top = pct(0.995), lo = Math.min(pct(0.005), 24), hi = top * 0.97;
+  if (top < 160 || top > 244 || hi - lo < 60) return raw(data);
+  const lut = new Uint8Array(256);
+  for (let v = 0; v < 256; v++) lut[v] = Math.round(252 * Math.pow(Math.min(1, Math.max(0, (v - lo) / (hi - lo))), 0.92));
+  for (let i = 0; i < data.length; i++) data[i] = lut[data[i]];
+  return raw(data);
+}
+
+async function processHero(slug, position, i, garder = false) {
   const { file, recadrer, angle } = sources.get(slug);
   const img = await decode(file, angle);
   const box = recadrer ? findCanvas(img) : { left: 0, top: 0, width: img.width, height: img.height };
@@ -188,7 +206,8 @@ async function processHero(slug, position, i) {
   const top = box.top + Math.round((box.height - bandH) * position / 100);
   const band = { left: box.left, top, width: box.width, height: bandH };
   const src = `img/entete-${i + 1}.jpg`;
-  await region(img, band).resize({ width: 2200, withoutEnlargement: true })
+  const bande = region(img, band).resize({ width: 2200, withoutEnlargement: true });
+  await (garder ? bande : await brighten(bande))
     .jpeg({ quality: 82, progressive: true, mozjpeg: true }).toFile(`${OUT}/${src}`);
   const zone = (x, y, w, h) => ({ left: band.left + Math.round(band.width * x), top: band.top + Math.round(bandH * y),
     width: Math.max(1, Math.round(band.width * w)), height: Math.max(1, Math.round(bandH * h)) });
@@ -335,14 +354,14 @@ async function main() {
 
   // En-tête : diaporama de toiles (à défaut, la toile seule, puis la première œuvre)
   const ent = site.entete || {};
-  let choix = asList(ent.diaporama).map((d) => ({ w: ref(d && d.oeuvre), position: pct(d && d.cadrage) })).filter((d) => d.w);
+  let choix = asList(ent.diaporama).map((d) => ({ w: ref(d && d.oeuvre), position: pct(d && d.cadrage), garder: !!(d && d.couleurs_photo) })).filter((d) => d.w);
   if (!choix.length && ref(ent.oeuvre)) choix = [{ w: ref(ent.oeuvre), position: pct(ent.position) }];
   if (!choix.length && works[0]) choix = [{ w: works[0], position: 50 }];
   let hero = null;
   if (choix.length) {
     const slides = [];
     for (const [i, d] of choix.slice(0, 12).entries()) {
-      try { slides.push({ slug: d.w.slug, ...(await processHero(d.w.slug, d.position, i)) }); }
+      try { slides.push({ slug: d.w.slug, ...(await processHero(d.w.slug, d.position, i, d.garder)) }); }
       catch (e) { warn(`Toile ${d.w.n} de l'en-tête illisible : ignorée.`); }
     }
     const duree = num(ent.duree);

@@ -85,35 +85,25 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
 .hero-side{flex:0 1 400px;min-width:0;display:flex;flex-direction:column;gap:24px}
 .actions{display:flex;flex-wrap:wrap;align-items:center;gap:16px 28px}
 
-/* En-tête de l'accueil : un détail de toile, à la largeur des sections, qui porte le nom du peintre */
+/* En-tête de l'accueil : un détail de toile à la largeur des sections. Le nom est dans un encadré
+   du blanc de la page, collé au bord gauche et centré en hauteur ; les onglets passent sous la toile. */
 .top{transition:background .35s,border-color .35s,color .35s}
 .brand{transition:opacity .35s}
 .top.over{background:transparent;border-bottom-color:transparent}
 .top.over .brand{opacity:0;pointer-events:none}
 @media (min-width:861px){.top.over .nav{visibility:hidden}}
-.top.over.on-dark{color:var(--paper)}
-.top.over.on-dark .nav a[aria-current="page"]{border-bottom-color:var(--paper)}
-.top.over .nav-cta{border-color:currentColor}
-.top.over.on-dark .nav-cta:hover{background:var(--paper);color:var(--ink)}
-.top.over.on-dark :focus-visible{outline-color:var(--paper)}
 .mast-frame{margin-top:calc(-1 * var(--hh));padding-top:clamp(12px,2vw,28px)}
-.mast{--fade:1.4s;--mpad:clamp(20px,3.4vw,48px);position:relative;height:clamp(300px,23.6vw,340px);overflow:hidden;background:var(--night);color:var(--paper);transition:color .9s}
-.mast.tone-light{color:var(--ink)}
+.mast{--fade:1.4s;--mpad:clamp(20px,3.4vw,48px);display:flex;flex-direction:column;height:clamp(300px,23.6vw,340px);color:var(--ink)}
+.mast-art{position:relative;flex:1;min-height:0;overflow:hidden;background:var(--panel)}
 .mast-slides{position:absolute;inset:0}
 .mast-slide{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover;opacity:0;transition:opacity var(--fade) ease}
 .mast-slide.is-on{opacity:1}
-.mast::after{content:"";position:absolute;inset:0;pointer-events:none;transition:background .9s;
-  background:linear-gradient(180deg,rgba(0,0,0,.5) 0,rgba(0,0,0,.08) 38%,rgba(0,0,0,.08) 58%,rgba(0,0,0,.55) 100%)}
-.mast.tone-light::after{background:linear-gradient(180deg,rgba(246,245,242,.55) 0,rgba(246,245,242,0) 40%,rgba(246,245,242,0) 58%,rgba(246,245,242,.6) 100%)}
-.mast-top,.mast-bot{position:absolute;z-index:2;left:0;right:0;padding-inline:var(--mpad)}
-.mast-top{top:clamp(44px,4.7vw,68px);display:flex;flex-direction:column;align-items:flex-start;gap:12px}
-.mast-name{font-family:var(--display);font-weight:400;text-transform:uppercase;line-height:1;margin:0;
-  font-size:clamp(26px,2.92vw,42px);letter-spacing:.4em;transition:font-size .9s,letter-spacing .9s}
-.mast.tone-light .mast-name{font-size:clamp(24px,2.64vw,38px);letter-spacing:.42em}
-.mast-sub{font-size:11.5px;font-weight:400;letter-spacing:.32em;text-transform:uppercase;opacity:.85}
-.mast.tone-dark .mast-top,.mast.tone-dark .mast-bot,.top.over.on-dark .menu-btn{text-shadow:0 0 16px rgba(0,0,0,.6),0 1px 2px rgba(0,0,0,.45)}
-.mast.tone-dark .mast-sub{opacity:1}
-.mast-bot{bottom:clamp(20px,2.2vw,30px);display:flex;align-items:center;justify-content:space-between;gap:16px 40px}
+.mast-top{position:absolute;z-index:2;left:0;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:24px 40px 20px var(--mpad);background:var(--wall)}
+.mast-name{font-family:var(--display);font-weight:400;text-transform:uppercase;line-height:1;margin:0 -.4em 0 0;font-size:clamp(28px,2.36vw,34px);letter-spacing:.4em}
+/* Le sous-titre occupe toute la largeur du nom : son dernier mot finit sous la dernière lettre du nom */
+.mast-sub{align-self:stretch;display:flex;justify-content:space-between;gap:0 1em;font-size:clamp(9.5px,.8vw,11.5px);font-weight:400;letter-spacing:.32em;text-transform:uppercase;color:var(--muted)}
+.mast-sub>span{margin-right:-.32em;white-space:nowrap}
+.mast-bot{display:flex;align-items:center;justify-content:space-between;gap:16px 40px;padding:8px var(--mpad)}
 .mast-nav{display:flex;flex-wrap:wrap;gap:8px 44px}
 .mast-nav a{font-size:13.5px;font-weight:400;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;padding:10px 0;border-bottom:1px solid transparent}
 .mast-nav a:hover{border-bottom-color:currentColor}
@@ -129,12 +119,13 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
 .mast-count{color:inherit;opacity:.85;white-space:nowrap}
 .mast-pause{flex:none;width:32px;height:32px;padding:0;display:grid;place-items:center;border:1px solid currentColor;border-radius:50%;background:none;color:inherit;cursor:pointer;opacity:.7}
 .mast-pause:hover{opacity:1}
-.mast-credit{color:inherit;text-decoration:none;opacity:.9;min-height:32px;display:inline-flex;align-items:center}
+.mast-credit{color:var(--muted);text-decoration:none;min-height:32px;display:inline-flex;align-items:center}
 .mast-credit:hover{text-decoration:underline;text-underline-offset:4px}
 .mast :focus-visible{outline-color:currentColor}
-@media (max-width:860px){.mast-nav{display:none}.mast-top{top:84px}.top.over .menu-btn{margin-right:calc(clamp(20px,3.4vw,48px) - 4px)}}
-@media (max-width:560px){.mast{height:260px}.mast.tone-dark .mast-name,.mast.tone-light .mast-name{font-size:21px;letter-spacing:.34em}.mast-meta{margin-left:0;width:100%;justify-content:space-between}.mast-credit{display:none}.mast-sub{font-size:10.5px;letter-spacing:.26em}}
-@media (prefers-reduced-motion:reduce){.mast-slide{transition:none}.mast-name{transition:none}}
+@media (max-width:1100px){.mast-name{font-size:24px;letter-spacing:.38em;margin-right:-.38em}.mast-sub{font-size:9px;letter-spacing:.16em}.mast-sub>span{margin-right:-.16em}}
+@media (max-width:860px){.mast-frame{margin-top:0;padding-top:0}.mast-nav{display:none}}
+@media (max-width:560px){.mast{height:260px}.mast-top{padding:18px 20px 14px var(--mpad)}.mast-meta{margin-left:0;width:100%;justify-content:space-between}.mast-credit{display:none}.mast.is-single .mast-bot{display:none}}
+@media (prefers-reduced-motion:reduce){.mast-slide{transition:none}}
 .pick{display:flex;align-items:center;gap:8px}
 .pick span{font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.85;margin-right:4px}
 .pick button{width:44px;height:44px;padding:0;border:1px solid currentColor;opacity:.55;background:none;cursor:pointer;overflow:hidden;transition:opacity .2s}
@@ -570,9 +561,10 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
     var nav = '<nav class="mast-nav" aria-label="Navigation principale">' + SITE.menu.map(function(m){
       return '<a href="' + esc(m.href) + '"' + (m.key ? ' data-nav="' + m.key + '"' : '') + (m.externe ? ' target="_blank" rel="noopener"' : '') + '>' + esc(m.libelle) + (m.externe ? ' ↗' : '') + '</a>';
     }).join('') + '</nav>';
-    var top = '<div class="mast-top"><h1 class="mast-name">' + esc(SITE.nom) + '</h1>' + (SITE.sous_titre ? '<span class="mast-sub">' + esc(SITE.sous_titre) + '</span>' : '') + '</div>';
+    var sub = SITE.sous_titre ? '<span class="mast-sub">' + String(SITE.sous_titre).split(/\s+·\s+/).map(function(t){ return '<span>' + esc(t) + '</span>'; }).join('<span aria-hidden="true">·</span>') + '</span>' : '';
+    var top = '<div class="mast-top"><h1 class="mast-name">' + esc(SITE.nom) + '</h1>' + sub + '</div>';
     if (!HERO || !HERO.slides.length) {
-      return '<div class="wrap mast-frame"><section class="mast tone-light">' + top + '<div class="mast-bot">' + nav + '</div></section></div>';
+      return '<div class="wrap mast-frame"><section class="mast is-single"><div class="mast-art">' + top + '</div><div class="mast-bot">' + nav + '</div></section></div>';
     }
     var S = HERO.slides, n = S.length, w0 = byN[S[0].slug];
     var slides = S.map(function(x, i){
@@ -586,8 +578,8 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
         '<span class="cartel mast-count" aria-hidden="true">01 / ' + (n < 10 ? '0' : '') + n + '</span>' +
         '<button type="button" class="mast-pause" aria-pressed="false" aria-label="Mettre le diaporama en pause"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1h2v8H2zM6 1h2v8H6z" fill="currentColor"/></svg></button>' : '') +
       '<a class="cartel mast-credit" href="#oeuvre-' + w0.slug + '">' + esc(w0.t) + ', ' + w0.y + ' (détail) →</a></div>';
-    return '<div class="wrap mast-frame"><section class="mast tone-' + S[0].tone + '"' + (n > 1 ? ' aria-roledescription="diaporama"' : '') + ' aria-label="' + (n > 1 ? 'Toiles de ' : 'Toile de ') + esc(SITE.nom) + '" style="--d:' + HERO.duree + 's">' +
-      '<div class="mast-slides">' + slides + '</div>' + top +
+    return '<div class="wrap mast-frame"><section class="mast tone-' + S[0].tone + (n > 1 ? '' : ' is-single') + '"' + (n > 1 ? ' aria-roledescription="diaporama"' : '') + ' aria-label="' + (n > 1 ? 'Toiles de ' : 'Toile de ') + esc(SITE.nom) + '" style="--d:' + HERO.duree + 's">' +
+      '<div class="mast-art"><div class="mast-slides">' + slides + '</div>' + top + '</div>' +
       '<div class="mast-bot">' + nav + meta + '</div></section></div>';
   }
 
@@ -946,7 +938,6 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
     var m = view.querySelector('.mast');
     var over = !!m && m.getBoundingClientRect().bottom > topBar.offsetHeight + 8;
     topBar.classList.toggle('over', over);
-    topBar.classList.toggle('on-dark', over && m.classList.contains('tone-dark'));
   }
   window.addEventListener('scroll', updateTop, {passive:true});
 

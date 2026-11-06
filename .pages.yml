@@ -1405,7 +1405,7 @@ content:
               - name: diaporama
                 label: Toiles du diaporama
                 type: object
-                description: "Les toiles défilent dans cet ordre, en fondu. Avec une seule toile, l'image reste fixe (pas de diaporama). Sur une toile sombre, le nom s'écrit en blanc et un peu plus grand ; sur une toile claire, en noir et plus fin. Tout se règle seul."
+                description: "Les toiles défilent dans cet ordre, en fondu. Avec une seule toile, l'image reste fixe (pas de diaporama). Le nom est posé dans un encadré blanc, à gauche, et les onglets passent sous la toile. Les blancs de la toile sont éclaircis automatiquement."
                 list:
                   collapsible:
                     collapsed: true
@@ -1413,6 +1413,7 @@ content:
                 fields:
                   - { name: oeuvre, label: Toile, component: choix_oeuvre }
                   - { name: cadrage, label: Partie de la toile montrée, component: cadrage }
+                  - { name: couleurs_photo, label: Garder les couleurs de la photo, type: boolean, description: "Cochez pour ne pas éclaircir les blancs de cette toile." }
               - { name: duree, label: Durée d'affichage de chaque toile (en secondes), type: number, description: "6 si vide. Entre 3 et 30.", options: { min: 3, max: 30 } }
               - { name: oeuvre, label: Toile utilisée si le diaporama est vide, component: choix_oeuvre }
               - { name: position, label: Partie de cette toile, component: cadrage }
