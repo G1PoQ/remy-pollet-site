@@ -19,12 +19,24 @@ export async function onRequest({ request, env, waitUntil }) {
   const headers = new Headers(asset.headers);
   headers.set('Accept-Ranges', 'bytes');
   headers.delete('Content-Encoding');
-  const total = Number(asset.headers.get('Content-Length'));
+  headers.set('X-Diag', 'plage=' + (request.headers.get('Range') || 'aucune') + '; taille=' + (asset.headers.get('Content-Length') || 'inconnue')); // TEMPORAIRE
   const range = (request.headers.get('Range') || '').trim();
-  const whole = () => new Response(asset.body, { status: 200, headers });
+  let total = Number(asset.headers.get('Content-Length'));
+  let whole = () => new Response(asset.body, { status: 200, headers });
 
   if (method === 'HEAD') { asset.body.cancel(); return new Response(null, { status: 200, headers }); }
-  if (!range || !(total > 0)) return whole();
+  if (!range) return whole();
+
+  // Taille inconnue (pas d'en-tête Content-Length) : le fichier est lu une fois en mémoire
+  // (25 Mo au plus, limite de Cloudflare Pages), puis découpé sans copie.
+  let data = null;
+  if (!(total > 0)) {
+    data = new Uint8Array(await asset.arrayBuffer());
+    total = data.byteLength;
+    headers.set('Content-Length', String(total));
+    whole = () => new Response(data, { status: 200, headers });
+  }
+  const cancel = () => { if (!data) asset.body.cancel(); };
   const ifRange = request.headers.get('If-Range');
   if (ifRange && ifRange !== asset.headers.get('ETag')) return whole();
 
@@ -35,13 +47,14 @@ export async function onRequest({ request, env, waitUntil }) {
   if (m[1] === '') { start = Math.max(0, total - Number(m[2])); end = total - 1; }
   else { start = Number(m[1]); end = m[2] === '' ? total - 1 : Math.min(Number(m[2]), total - 1); }
   if (start >= total || start > end) {
-    asset.body.cancel();
+    cancel();
     return new Response('Plage non disponible', { status: 416, headers: { 'Content-Range': `bytes */${total}`, 'Cache-Control': 'no-store' } });
   }
 
   const size = end - start + 1;
   headers.set('Content-Range', `bytes ${start}-${end}/${total}`);
   headers.set('Content-Length', String(size));
+  if (data) return new Response(data.subarray(start, end + 1), { status: 206, headers });
   const { readable, writable } = new FixedLengthStream(size);
   waitUntil(copySlice(asset.body, start, end + 1, writable));
   return new Response(readable, { status: 206, headers });
