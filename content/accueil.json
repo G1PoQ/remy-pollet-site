@@ -7,8 +7,7 @@
       "texte": "Des huiles asphaltiques de 1997 aux séries de 2025, Rémy Pollet travaille la surface de la toile : matité et brillance, opacité et transparence.",
       "oeuvres": [
         "636",
-        "667",
-        "580"
+        "667"
       ],
       "lien_formats": false,
       "masquer": false
@@ -21,11 +20,11 @@
       "lien": "https://online.fliphtml5.com/ytcdo/qyjy/#p=1",
       "libelle_bouton": "Feuilleter le catalogue",
       "couverture": "/media/images/Capture d'écran 2026-10-22 163459.png",
+      "legende": "L'écho du geste",
+      "sous_legende": "Catalogue des huiles",
       "oeuvre": "631",
       "exemplaire": true,
-      "masquer": false,
-      "legende": "L'écho du geste",
-      "sous_legende": "Catalogue des huiles"
+      "masquer": false
     },
     {
       "type": "citation",
