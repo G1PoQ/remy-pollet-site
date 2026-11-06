@@ -1405,7 +1405,7 @@ content:
               - name: diaporama
                 label: Toiles du diaporama
                 type: object
-                description: "Les toiles défilent dans cet ordre, en fondu. Avec une seule toile, l'image reste fixe (pas de diaporama). Le nom est posé dans un encadré blanc, à gauche, et les onglets passent sous la toile. Les blancs de la toile sont éclaircis automatiquement."
+                description: "Les toiles défilent dans cet ordre, en fondu. Avec une seule toile, l'image reste fixe (pas de diaporama). Le nom est posé dans un encadré blanc, à gauche, et les onglets passent sous la toile. Les blancs de la toile sont éclaircis et accordés automatiquement sur ceux des œuvres de l'accrochage."
                 list:
                   collapsible:
                     collapsed: true

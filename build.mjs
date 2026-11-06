@@ -180,10 +180,26 @@ async function processWork(file, slug, recadrer = true, angle = 0) {
 
 // Une toile du diaporama de l'en-tête : une bande (3 de large pour 1 de haut) prise à la hauteur choisie.
 // La couleur du texte (et la taille du nom) dépend de la zone où il est posé : nom en haut à gauche, onglets en bas.
+// Blanc moyen d'une image : moyenne des 15 % de pixels les plus clairs (R, V, B et luminosité).
+function whiteOf(data, C) {
+  const hist = new Uint32Array(256), n = data.length / C;
+  for (let i = 0; i < data.length; i += C) hist[Math.min(255, Math.round(lum(data, i)))]++;
+  let s = 0, seuil = 255;
+  for (let v = 255; v >= 0; v--) { s += hist[v]; if (s >= n * 0.15) { seuil = v; break; } }
+  let r = 0, g = 0, b = 0, k = 0;
+  for (let i = 0; i < data.length; i += C) if (lum(data, i) >= seuil) { r += data[i]; g += data[i + 1]; b += data[i + 2]; k++; }
+  return k ? [r / k, g / k, b / k] : null;
+}
+async function whiteOfFile(file) {
+  const { data, info } = await sharp(file).resize({ width: 400, withoutEnlargement: true }).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+  return whiteOf(data, info.channels);
+}
+
 // Éclaircit les blancs de la bande d'en-tête. Les toiles sont photographiées sur un fond blanc :
-// leurs blancs sortent gris (autour de 205 sur 255). On remonte les blancs presque au blanc de la page,
-// sans toucher aux noirs. Une toile sans vrais blancs (toile sombre) est laissée telle quelle.
-async function brighten(pipeline) {
+// leurs blancs sortent gris (autour de 205 sur 255). On remonte les blancs sans toucher aux noirs,
+// puis on les accorde sur le blanc des œuvres de l'accrochage (niveau et teinte) quand il est connu.
+// Une toile sans vrais blancs (toile sombre) est laissée telle quelle.
+async function brighten(pipeline, cible = null) {
   const { data, info } = await pipeline.raw().toBuffer({ resolveWithObject: true });
   const C = info.channels, n = info.width * info.height;
   const hist = new Uint32Array(256);
@@ -195,10 +211,15 @@ async function brighten(pipeline) {
   const lut = new Uint8Array(256);
   for (let v = 0; v < 256; v++) lut[v] = Math.round(252 * Math.pow(Math.min(1, Math.max(0, (v - lo) / (hi - lo))), 0.92));
   for (let i = 0; i < data.length; i++) data[i] = lut[data[i]];
+  const blanc = cible && whiteOf(data, C);
+  if (blanc) {
+    const k = [0, 1, 2].map((c) => cible[c] / Math.max(1, blanc[c]));
+    for (let i = 0; i < data.length; i += C) for (let c = 0; c < 3; c++) data[i + c] = Math.min(255, Math.round(data[i + c] * k[c]));
+  }
   return raw(data);
 }
 
-async function processHero(slug, position, i, garder = false) {
+async function processHero(slug, position, i, garder = false, cible = null) {
   const { file, recadrer, angle } = sources.get(slug);
   const img = await decode(file, angle);
   const box = recadrer ? findCanvas(img) : { left: 0, top: 0, width: img.width, height: img.height };
@@ -207,7 +228,7 @@ async function processHero(slug, position, i, garder = false) {
   const band = { left: box.left, top, width: box.width, height: bandH };
   const src = `img/entete-${i + 1}.jpg`;
   const bande = region(img, band).resize({ width: 2200, withoutEnlargement: true });
-  await (garder ? bande : await brighten(bande))
+  await (garder ? bande : await brighten(bande, cible))
     .jpeg({ quality: 82, progressive: true, mozjpeg: true }).toFile(`${OUT}/${src}`);
   const zone = (x, y, w, h) => ({ left: band.left + Math.round(band.width * x), top: band.top + Math.round(bandH * y),
     width: Math.max(1, Math.round(band.width * w)), height: Math.max(1, Math.round(bandH * h)) });
@@ -247,9 +268,9 @@ const FONTS = {
     caslon: { css: "'Libre Caslon Text', 'Big Caslon', Georgia, serif", g: 'Libre+Caslon+Text:ital,wght@0,400;0,700;1,400' }
   },
   texte: {
-    hanken: { css: "'Hanken Grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif", g: 'Hanken+Grotesk:wght@300;400;500' },
-    jost: { css: "Jost, 'Helvetica Neue', Helvetica, Arial, sans-serif", g: 'Jost:wght@300;400;500' },
-    source: { css: "'Source Sans 3', 'Helvetica Neue', Helvetica, Arial, sans-serif", g: 'Source+Sans+3:wght@300;400;500' }
+    hanken: { css: "'Hanken Grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif", g: 'Hanken+Grotesk:wght@300;400;500;600' },
+    jost: { css: "Jost, 'Helvetica Neue', Helvetica, Arial, sans-serif", g: 'Jost:wght@300;400;500;600' },
+    source: { css: "'Source Sans 3', 'Helvetica Neue', Helvetica, Arial, sans-serif", g: 'Source+Sans+3:wght@300;400;500;600' }
   }
 };
 
@@ -352,6 +373,18 @@ async function main() {
     return { nom: String(y), count: ws.length, cover: { slug: cw.slug, pos: `50% ${pct(o ? o.cadrage : 50)}%` } };
   });
 
+  // Accueil (lu ici : l'en-tête s'accorde sur le blanc des œuvres de l'accrochage)
+  const accueil = await readJSON('content/accueil.json', { sections: [] });
+  let blancAccrochage = null;
+  {
+    const acc = asList(accueil.sections).find((b) => b && b.masquer !== true && str(b.type) === 'accrochage');
+    const blancs = [];
+    for (const slug of acc ? refs(acc.oeuvres).slice(0, 6) : []) {
+      try { const w = await whiteOfFile(`${OUT}/img/o/${slug}.jpg`); if (w && lum(w, 0) >= 170) blancs.push(w); } catch (e) { /* image absente */ }
+    }
+    if (blancs.length) blancAccrochage = [0, 1, 2].map((c) => blancs.reduce((t, w) => t + w[c], 0) / blancs.length);
+  }
+
   // En-tête : diaporama de toiles (à défaut, la toile seule, puis la première œuvre)
   const ent = site.entete || {};
   let choix = asList(ent.diaporama).map((d) => ({ w: ref(d && d.oeuvre), position: pct(d && d.cadrage), garder: !!(d && d.couleurs_photo) })).filter((d) => d.w);
@@ -361,7 +394,7 @@ async function main() {
   if (choix.length) {
     const slides = [];
     for (const [i, d] of choix.slice(0, 12).entries()) {
-      try { slides.push({ slug: d.w.slug, ...(await processHero(d.w.slug, d.position, i, d.garder)) }); }
+      try { slides.push({ slug: d.w.slug, ...(await processHero(d.w.slug, d.position, i, d.garder, blancAccrochage)) }); }
       catch (e) { warn(`Toile ${d.w.n} de l'en-tête illisible : ignorée.`); }
     }
     const duree = num(ent.duree);
@@ -369,7 +402,6 @@ async function main() {
   }
 
   // Accueil
-  const accueil = await readJSON('content/accueil.json', { sections: [] });
   const sections = [];
   for (const b of asList(accueil.sections)) {
     if (!b || b.masquer === true) continue;
