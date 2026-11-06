@@ -333,6 +333,8 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
 .chip small{font-size:12px;opacity:.7;margin-left:6px;font-variant-numeric:tabular-nums}
 .toolbar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px;padding-block:20px 40px}
 .count{font-size:15px;color:var(--ink-2)}
+/* Texte lu par les lecteurs d'écran seulement (nombre d'œuvres affichées, retiré de l'écran le 06/11/2026) */
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
 .tools{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px}
 .seg{display:inline-flex;border:1px solid var(--line)}
 .seg button{min-height:44px;padding:0 16px;border:0;background:transparent;cursor:pointer;font-size:14px;color:var(--ink-2)}
@@ -561,11 +563,11 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
   }
   function serieTile(s, n){
     return '<a class="cover" href="#oeuvres" data-serie="' + esc(s.nom) + '"><div class="cover-img">' + coverImg(s.cover, '(max-width:520px) 92vw, (max-width:900px) 46vw, 30vw') + '</div>' +
-      '<div class="cover-meta"><span class="card-title">' + esc(s.nom) + '</span><span class="muted">' + esc(s.annees) + (s.annees ? ' · ' : '') + plural(n == null ? s.count : n) + '</span></div></a>';
+      '<div class="cover-meta"><span class="card-title">' + esc(s.nom) + '</span>' + (s.annees ? '<span class="muted">' + esc(s.annees) + '</span>' : '') + '</div></a>';
   }
   function yearTile(y, n){
     return '<a class="cover" href="#oeuvres" data-annee="' + y.nom + '"><div class="cover-img">' + coverImg(y.cover, '(max-width:520px) 92vw, (max-width:900px) 46vw, 30vw') + '</div>' +
-      '<div class="cover-meta"><span class="card-title">' + y.nom + '</span><span class="muted">' + plural(n == null ? y.count : n) + '</span></div></a>';
+      '<div class="cover-meta"><span class="card-title">' + y.nom + '</span></div></a>';
   }
   function crumbs(items){
     return '<nav class="crumbs" aria-label="Fil d\'Ariane"><a href="#accueil">Accueil</a>' + items.map(function(i){ return '<span>/</span>' + i; }).join('') + '</nav>';
@@ -815,7 +817,7 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
       if (by && cw.cat !== st.cat) { var alt0 = pool('annee').filter(function(w){ return String(w.y) === st.annee; })[0]; if (alt0) { cw = alt0; bc = {nom: by.nom, cover: {slug: alt0.slug, pos: '50% 50%'}}; } }
       banner = '<section class="banner">' + coverImg(bc.cover, '(max-width:1300px) 96vw, 1240px', true) +
         '<div class="plate"><span class="eyebrow">' + (bs ? 'Série' : esc(catName(st.cat)) + ' · Année') + '</span><h2 class="display">' + esc(bc.nom) + '</h2>' +
-        '<div class="row-meta">' + (bs && bs.annees ? '<span>' + esc(bs.annees) + '</span>' : '') + '<span>' + plural(list.length) + (st.format !== 'Tous' || st.tech !== 'Toutes' || (bs && st.annee !== 'Toutes') ? ' avec ces filtres' : '') + '</span></div>' +
+        (bs && bs.annees ? '<div class="row-meta"><span>' + esc(bs.annees) + '</span></div>' : '') +
         (bs && bs.description ? '<p class="notice" style="max-width:34em">' + inline(bs.description) + '</p>' : '') +
         '<span class="cartel">Image de présentation : ' + esc(cw.t) + ', ' + cw.y + ' (détail)</span></div>' +
         '<button type="button" class="banner-close" data-reset>' + ({huiles:'Toutes les huiles', encres:'Toutes les encres', dessins:'Tous les dessins'}[st.cat] || 'Toutes les œuvres') + ' ✕</button></section>';
@@ -846,12 +848,12 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
         (seriesNames.length > 2 ? '<div class="fgroup"><span class="flabel">Série</span>' + chips('serie', seriesNames) + '</div>' : '') +
         (years.length > 2 ? '<div class="fgroup"><span class="flabel">Année</span>' + chips('annee', years) + '</div>' : '') +
         (techs.length > 1 ? '<div class="fgroup"><span class="flabel">Technique</span>' + chips('tech', ['Toutes'].concat(techs), {label: function(v){ return v === 'Toutes' ? v : (TECH_SHORT[v] || v); }}) + '</div>' : '') +
-        (formats.length > 2 ? '<div class="fgroup"><span class="flabel">Format</span>' + chips('format', formats) + '<span class="hint" style="margin-left:8px">Petit ≤ 73 cm · Moyen 74 – 120 cm · Grand ≥ 121 cm</span></div>' : '') +
+        (formats.length > 2 ? '<div class="fgroup"><span class="flabel">Format</span>' + chips('format', formats) + '</div>' : '') +
       '</div>' : '';
     var toggle = '<button type="button" class="toggle-f" data-togglefilters aria-expanded="' + FILTRES_OUVERTS + '" aria-controls="filtres"><span>' +
       (FILTRES_OUVERTS ? 'Masquer les filtres' : 'Afficher les filtres' + (actifs ? ' (' + actifs + ' actif' + (actifs > 1 ? 's' : '') + ')' : '')) + '</span></button>';
     return '<div class="wrap">' + head + cats + browse + banner + filtres +
-      '<div class="toolbar"><div class="count-row"><span class="count" aria-live="polite">' + plural(list.length) + '</span>' + toggle + '</div>' +
+      '<div class="toolbar"><div class="count-row"><span class="sr-only" aria-live="polite">' + plural(list.length) + '</span>' + toggle + '</div>' +
         '<div class="tools"><div class="seg" role="group" aria-label="Affichage"><button type="button" data-mode="mur" aria-pressed="' + (st.mode === 'mur') + '">Mur</button><button type="button" data-mode="echelle" aria-pressed="' + (st.mode === 'echelle') + '">À l\'échelle</button></div>' +
         '<label class="select" for="tri">Trier<select id="tri"><option value="recent"' + (st.tri === 'recent' ? ' selected' : '') + '>Plus récentes</option><option value="ancien"' + (st.tri === 'ancien' ? ' selected' : '') + '>Plus anciennes</option><option value="grand"' + (st.tri === 'grand' ? ' selected' : '') + '>Grands formats d\'abord</option></select></label></div>' +
       '</div>' +
