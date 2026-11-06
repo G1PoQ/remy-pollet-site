@@ -148,8 +148,7 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
 .cats a{font-family:var(--display);font-size:clamp(25px,2.7vw,36px);line-height:1.1;color:var(--muted);text-decoration:none;padding:4px 0 16px;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .2s,border-color .2s}
 .cats a:hover{color:var(--ink)}
 .cats a[aria-current="true"]{color:var(--ink);border-bottom-color:var(--ink)}
-.cats small{font-family:var(--body);font-size:12px;letter-spacing:.06em;color:var(--muted);margin-left:8px;vertical-align:super}
-@media (max-width:560px){.cats{gap:0 22px;margin-bottom:24px}.cats a{font-size:21px;padding-bottom:10px}.cats small{margin-left:4px}}
+@media (max-width:560px){.cats{gap:0 22px;margin-bottom:24px}.cats a{font-size:21px;padding-bottom:10px}}
 .count-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 22px}
 .toggle-f{font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;background:none;border:0;padding:0;min-height:44px;cursor:pointer;color:var(--ink-2)}
 .toggle-f span{border-bottom:1px solid currentColor;padding-bottom:3px}
@@ -795,8 +794,7 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
       '<h1 class="display">Œuvres</h1><p class="lede">' + (WORKS.length ? 'Les huiles, les encres de Chine et les dessins. Entrez par une série ou une année, ou affichez tout et affinez avec les filtres.' : 'Les œuvres seront bientôt présentées ici.') + '</p></div>';
     if (!WORKS.length) return '<div class="wrap">' + head + '<div class="empty-site"></div></div>';
     var cats = CATS.length > 1 ? '<nav class="cats" aria-label="Parties du catalogue">' + CATS.map(function(c){
-      var n = WORKS.filter(function(w){ return w.cat === c[0]; }).length;
-      return '<a href="#oeuvres/' + c[0] + '" aria-current="' + (st.cat === c[0]) + '">' + esc(c[1]) + '<small>' + n + '</small></a>';
+      return '<a href="#oeuvres/' + c[0] + '" aria-current="' + (st.cat === c[0]) + '">' + esc(c[1]) + '</a>';
     }).join('') + '</nav>' : '';
     var tabs = catBrowses(st.cat);
     if (!tabs.some(function(b){ return b[0] === st.browse; })) st.browse = tabs[0][0];
