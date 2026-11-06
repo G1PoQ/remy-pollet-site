@@ -448,7 +448,7 @@ async function main() {
     biographie: { intro: str(bio.intro), oeuvre: refs(bio.oeuvre)[0] || null,
       portrait: bio.portrait ? await processLoose(bio.portrait) : null, legende: str(bio.legende_portrait),
       etapes: asList(bio.etapes).map((e) => ({ periode: str(e.periode), texte: str(e.texte) })).filter((e) => e.periode || e.texte) },
-    expositions: { intro: str(expo.intro),
+    expositions: { intro: str(expo.intro), photo: expo.photo ? await processLoose(expo.photo) : null, legende: str(expo.legende_photo),
       liste: (await Promise.all(asList(expo.liste).map(async (x) => ({ date: str(x.date), titre: str(x.titre), lieu: str(x.lieu), organisateur: str(x.organisateur),
         photos: (await Promise.all(asList(x.photos).map((p) => processLoose(typeof p === 'object' && p ? p.image : p)))).filter(Boolean) }))))
         .filter((x) => x.titre || x.date) }

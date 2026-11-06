@@ -1370,6 +1370,8 @@ content:
           delete: false
         fields:
           - { name: intro, label: Introduction, type: text }
+          - { name: photo, label: Photo de présentation (sur fond noir), type: image, options: { media: images }, description: "Affichée en grand en haut de la page, à gauche du titre. Laissez vide pour revenir à l'ancienne présentation, avec les vignettes sous chaque exposition." }
+          - { name: legende_photo, label: Description de la photo, type: string, description: "Lue par les lecteurs d'écran et les moteurs de recherche. Exemple : « Vitrine de la galerie, Paris »." }
           - name: liste
             label: Expositions (la plus récente en premier)
             type: object
@@ -1382,7 +1384,7 @@ content:
               - { name: titre, label: Titre, type: string }
               - { name: lieu, label: Ville, type: string }
               - { name: organisateur, label: Galerie ou organisateur, type: string }
-              - { name: photos, label: Photos (facultatif), type: image, list: true, options: { media: images }, description: "Vues de l'exposition. Elles s'affichent en vignettes sous la ligne et s'agrandissent au clic." }
+              - { name: photos, label: Photos (facultatif), type: image, list: true, options: { media: images }, description: "Vues de l'exposition. Elles s'affichent en vignettes sous la ligne seulement quand il n'y a pas de photo de présentation." }
 
   - name: reglages_groupe
     label: Réglages
