@@ -1405,7 +1405,7 @@ content:
               - name: diaporama
                 label: Toiles du diaporama
                 type: object
-                description: "Les toiles défilent dans cet ordre, en fondu. Sur une toile sombre, le nom s'écrit en blanc et un peu plus grand ; sur une toile claire, en noir et plus fin. Tout se règle seul."
+                description: "Les toiles défilent dans cet ordre, en fondu. Avec une seule toile, l'image reste fixe (pas de diaporama). Sur une toile sombre, le nom s'écrit en blanc et un peu plus grand ; sur une toile claire, en noir et plus fin. Tout se règle seul."
                 list:
                   collapsible:
                     collapsed: true
