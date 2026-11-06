@@ -778,6 +778,7 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
     });
     return list;
   }
+  /* Boutons des filtres de la page Œuvres : sans nombre d'œuvres (choix du 06/11/2026) ; opts.count permet d'en remettre. */
   function chips(key, values, opts){
     opts = opts || {};
     return values.map(function(v){
@@ -828,9 +829,7 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
       seriesNames = ['Toutes'].concat(catSeries().map(function(x){ return x.nom; }).filter(function(n){ return n === st.serie || pS.some(function(w){ return w.s === n; }); }));
       if (st.serie === 'À préciser' || pS.some(function(w){ return !w.s; })) seriesNames.push('À préciser');
     }
-    var countSerie = function(v){ return pS.filter(function(w){ return v === 'Toutes' || (v === 'À préciser' ? !w.s : w.s === v); }).length; };
     var years = ['Toutes'].concat(YEARS.map(function(y){ return y.nom; }).filter(function(y){ return y === st.annee || pY.some(function(w){ return String(w.y) === y; }); }));
-    var countYear = function(v){ return pY.filter(function(w){ return v === 'Toutes' || String(w.y) === v; }).length; };
     var techs = []; pT.forEach(function(w){ if (techs.indexOf(w.tech) < 0) techs.push(w.tech); });
     if (st.tech !== 'Toutes' && techs.indexOf(st.tech) < 0) techs.push(st.tech);
     var formats = ['Tous'].concat(['Petit', 'Moyen', 'Grand'].filter(function(f){ return f === st.format || pF.some(function(w){ return sizeCat(w) === f; }); }));
@@ -846,8 +845,8 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
       results = '<div class="grid">' + list.map(card).join('') + '</div>';
     }
     var filtres = FILTRES_OUVERTS ? '<div class="filters" id="filtres" role="group" aria-label="Filtres">' +
-        (seriesNames.length > 2 ? '<div class="fgroup"><span class="flabel">Série</span>' + chips('serie', seriesNames, {count: countSerie}) + '</div>' : '') +
-        (years.length > 2 ? '<div class="fgroup"><span class="flabel">Année</span>' + chips('annee', years, {count: countYear}) + '</div>' : '') +
+        (seriesNames.length > 2 ? '<div class="fgroup"><span class="flabel">Série</span>' + chips('serie', seriesNames) + '</div>' : '') +
+        (years.length > 2 ? '<div class="fgroup"><span class="flabel">Année</span>' + chips('annee', years) + '</div>' : '') +
         (techs.length > 1 ? '<div class="fgroup"><span class="flabel">Technique</span>' + chips('tech', ['Toutes'].concat(techs), {label: function(v){ return v === 'Toutes' ? v : (TECH_SHORT[v] || v); }}) + '</div>' : '') +
         (formats.length > 2 ? '<div class="fgroup"><span class="flabel">Format</span>' + chips('format', formats) + '<span class="hint" style="margin-left:8px">Petit ≤ 73 cm · Moyen 74 – 120 cm · Grand ≥ 121 cm</span></div>' : '') +
       '</div>' : '';
