@@ -4,29 +4,20 @@
   "entete": {
     "diaporama": [
       {
-        "oeuvre": "580",
-        "cadrage": "centre"
-      },
-      {
-        "oeuvre": "646",
-        "cadrage": "centre-bas"
-      },
-      {
-        "oeuvre": "636",
-        "cadrage": "tout-en-bas"
-      },
-      {
-        "oeuvre": "614",
-        "cadrage": "centre"
-      },
-      {
-        "oeuvre": "631",
-        "cadrage": "centre"
+        "oeuvre": "615",
+        "cadrage": "haut"
       }
     ],
     "duree": 6,
     "oeuvre": "580",
     "position": "centre"
+  },
+  "contact": {
+    "email": "remy.pollet.site@outlook.fr",
+    "visites": "Visites sur rendez-vous",
+    "instagram": "https://www.instagram.com/pollet.remy/",
+    "intro": "Acquisition, visite d'atelier, prêt pour une exposition : l'atelier répond personnellement à chaque demande.",
+    "cle_formulaire": "fe37c6a6-5521-4386-98c3-5de1dd21d0c2"
   },
   "menu": [
     {
@@ -53,13 +44,6 @@
   "polices": {
     "titres": "palatino",
     "texte": "hanken"
-  },
-  "contact": {
-    "intro": "Acquisition, visite d'atelier, prêt pour une exposition : l'atelier répond personnellement à chaque demande.",
-    "email": "remy.pollet.site@outlook.fr",
-    "visites": "Visites sur rendez-vous",
-    "instagram": "https://www.instagram.com/pollet.remy/",
-    "cle_formulaire": "fe37c6a6-5521-4386-98c3-5de1dd21d0c2"
   },
   "pied_de_page": "© Rémy Pollet · Reproduction des œuvres interdite sans autorisation",
   "referencement": {
