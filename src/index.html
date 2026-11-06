@@ -274,7 +274,13 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
 .xp-txt .crumbs,.xp-txt .crumbs a{color:var(--on-night-2)}
 .xp-txt h1.display{color:#F4F2EE}
 .xp-txt .lede{color:var(--on-night-2);margin-top:20px}
-@media (max-width:760px){.xp-in{grid-template-columns:minmax(0,1fr)}}
+/* Vignette : au milieu de la partie droite, dans l'espace au-dessus du titre ; titre et texte centrés sur elle */
+.xp-txt.has-vig{align-self:stretch;display:grid;grid-template-rows:1fr auto;row-gap:32px;justify-items:center;text-align:center}
+.xp-band .xp-vig{margin:0;align-self:center;display:block}
+.xp-vig img{display:block;height:clamp(140px,15.3vw,220px);width:auto;max-width:100%}
+.has-vig .crumbs{justify-content:center}
+@media (max-width:760px){.xp-in{grid-template-columns:minmax(0,1fr)}.xp-band figure{justify-content:center}
+  .xp-txt.has-vig{row-gap:24px}.xp-vig img{height:170px}}
 .row-photos{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:10px;padding-top:10px}
 .row-photos button{padding:0;border:0;background:var(--panel);cursor:zoom-in;line-height:0}
 .row-photos img{height:clamp(84px,9vw,120px);width:auto;display:block;transition:opacity .2s}
@@ -909,10 +915,11 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
   }
 
   function expositions(){
-    var P = EXPO.photo, head = crumbs(['<span>Expositions</span>']) + '<h1 class="display">Expositions</h1>' + (EXPO.intro ? '<p class="lede">' + inline(EXPO.intro) + '</p>' : '');
+    var P = EXPO.photo, V = P && EXPO.vignette, head = crumbs(['<span>Expositions</span>']) + '<h1 class="display">Expositions</h1>' + (EXPO.intro ? '<p class="lede">' + inline(EXPO.intro) + '</p>' : '');
     /* Avec une photo de présentation : bandeau noir, photo à gauche, titre à droite ; la liste n'a plus de vignettes */
     return (P ? '<section class="xp-band"><div class="wrap xp-in"><figure><img src="' + P.src + '" width="' + P.w + '" height="' + P.h + '" alt="' + esc(EXPO.legende || ('Exposition de ' + SITE.nom)) + '" fetchpriority="high" decoding="async"></figure>' +
-        '<div class="xp-txt">' + head + '</div></div></section>' : '') +
+        (V ? '<div class="xp-txt has-vig"><figure class="xp-vig"><img src="' + V.src + '" width="' + V.w + '" height="' + V.h + '" alt="' + esc(EXPO.legende_vignette) + '" decoding="async"></figure><div class="xp-bas">' + head + '</div></div>'
+           : '<div class="xp-txt">' + head + '</div>') + '</div></section>' : '') +
       '<div class="wrap">' + (P ? '' : '<div class="page-head">' + head + '</div>') +
       '<div style="padding-bottom:48px">' + expoRows(EXPO.liste, !P) + '</div>' +
       '<div class="actions" style="padding-bottom:clamp(72px,9vw,112px)"><a class="btn" href="#contact" data-objet="Exposition ou prêt">Proposer une exposition</a></div>' +
