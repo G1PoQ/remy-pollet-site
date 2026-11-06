@@ -19,7 +19,6 @@ export async function onRequest({ request, env, waitUntil }) {
   const headers = new Headers(asset.headers);
   headers.set('Accept-Ranges', 'bytes');
   headers.delete('Content-Encoding');
-  headers.set('X-Diag', 'plage=' + (request.headers.get('Range') || 'aucune') + '; taille=' + (asset.headers.get('Content-Length') || 'inconnue')); // TEMPORAIRE
   const range = (request.headers.get('Range') || '').trim();
   let total = Number(asset.headers.get('Content-Length'));
   let whole = () => new Response(asset.body, { status: 200, headers });
