@@ -23,6 +23,12 @@ media:
     input: media/images
     output: /media/images
     categories: [image]
+  - name: videos
+    label: Vidéos
+    input: media/videos
+    output: /media/videos
+    categories: [video]
+    extensions: [mp4, m4v, mov, webm]
 
 components:
   cadrage:
@@ -1347,6 +1353,13 @@ content:
           delete: false
         fields:
           - { name: intro, label: Introduction, type: text }
+          - name: video
+            label: Vidéo (facultatif)
+            type: file
+            description: "Placée entre l'introduction et les étapes. Fichier MP4, 25 Mo au maximum (au-delà, la vidéo n'est pas mise en ligne). Pour la retirer, videz ce champ."
+            options: { media: videos, extensions: [mp4, m4v, mov, webm] }
+          - { name: affiche_video, label: "Image affichée avant la lecture (facultatif)", type: image, options: { media: images }, description: "Une image tirée du film. À défaut, la première image de la vidéo." }
+          - { name: legende_video, label: Légende de la vidéo (facultatif), type: string, description: "La durée est ajoutée automatiquement." }
           - name: etapes
             label: Étapes (dans l'ordre chronologique)
             type: object

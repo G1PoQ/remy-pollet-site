@@ -258,6 +258,50 @@ async function processLoose(p) {
   }
 }
 
+/* ---------- Vidéos ----------
+   Copiées telles quelles dans dist/video. Cloudflare Pages refuse tout fichier de plus de 25 Mo
+   (la mise en ligne entière échouerait) : une vidéo plus lourde est laissée de côté, avec un avertissement. */
+const VIDEO_MAX = 25 * 1024 * 1024;
+function mp4Duration(buf) {
+  // Durée (en secondes) lue dans la boîte « mvhd » du fichier MP4 / MOV ; null si introuvable.
+  let pos = 0;
+  while (pos + 8 <= buf.length) {
+    let size = buf.readUInt32BE(pos), head = 8;
+    const type = buf.toString('latin1', pos + 4, pos + 8);
+    if (size === 1) { size = Number(buf.readBigUInt64BE(pos + 8)); head = 16; }
+    else if (size === 0) size = buf.length - pos;
+    if (size < head) return null;
+    if (type === 'moov') {
+      const i = buf.indexOf('mvhd', pos + head);
+      if (i < 0 || i > pos + size) return null;
+      const v1 = buf[i + 4] === 1;
+      const scale = buf.readUInt32BE(i + (v1 ? 24 : 16));
+      const dur = v1 ? Number(buf.readBigUInt64BE(i + 28)) : buf.readUInt32BE(i + 20);
+      return scale ? dur / scale : null;
+    }
+    pos += size;
+  }
+  return null;
+}
+async function processVideo(p) {
+  const rel = mediaPath(p);
+  if (!rel) return null;
+  let buf;
+  try { buf = await fs.readFile(rel); }
+  catch { warn(`Vidéo introuvable : ${rel}`); return null; }
+  if (buf.length > VIDEO_MAX) {
+    warn(`Vidéo trop lourde (${(buf.length / 1048576).toFixed(1)} Mo ; 25 Mo au maximum), non mise en ligne : ${rel}`);
+    return null;
+  }
+  const ext = path.extname(rel).toLowerCase();
+  const name = slugify(path.basename(rel, ext)) + ext;
+  await fs.mkdir(`${OUT}/video`, { recursive: true });
+  await fs.writeFile(`${OUT}/video/${name}`, buf);
+  let duree = null;
+  try { duree = mp4Duration(buf); } catch { duree = null; }
+  return { src: `video/${name}`, type: ext === '.webm' ? 'video/webm' : 'video/mp4', duree: duree ? Math.round(duree) : null };
+}
+
 /* ---------- Polices ---------- */
 
 const FONTS = {
@@ -447,6 +491,8 @@ async function main() {
     accueil: sections,
     biographie: { intro: str(bio.intro), oeuvre: refs(bio.oeuvre)[0] || null,
       portrait: bio.portrait ? await processLoose(bio.portrait) : null, legende: str(bio.legende_portrait),
+      video: bio.video ? await processVideo(bio.video) : null, affiche: bio.affiche_video ? await processLoose(bio.affiche_video) : null,
+      legende_video: str(bio.legende_video),
       etapes: asList(bio.etapes).map((e) => ({ periode: str(e.periode), texte: str(e.texte) })).filter((e) => e.periode || e.texte) },
     expositions: { intro: str(expo.intro), photo: expo.photo ? await processLoose(expo.photo) : null, legende: str(expo.legende_photo),
       vignette: expo.vignette ? await processLoose(expo.vignette) : null, legende_vignette: str(expo.legende_vignette),
