@@ -4,6 +4,12 @@
   "legende_photo": "Vitrine d'une exposition de Rémy Pollet",
   "liste": [
     {
+      "date": "avril - mai 2026",
+      "titre": "SO2 ",
+      "lieu": "Berlin",
+      "organisateur": "Galeria Azur"
+    },
+    {
       "date": "2025",
       "titre": "Salon d'Automne ",
       "lieu": "Paris ",
@@ -84,12 +90,6 @@
       "photos": [
         "/media/images/expositions/fullsizerender-5.jpg"
       ]
-    },
-    {
-      "date": "avril - mai 2026",
-      "titre": "Empreinte ",
-      "lieu": "Berlin",
-      "organisateur": "Galeria Azur"
     }
   ]
 }
