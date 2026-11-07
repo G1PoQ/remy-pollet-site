@@ -4,6 +4,12 @@
   "legende_photo": "Vitrine d'une exposition de Rémy Pollet",
   "liste": [
     {
+      "date": "2025",
+      "titre": "Salon d'Automne ",
+      "lieu": "Paris ",
+      "organisateur": "SAP "
+    },
+    {
       "date": "3 – 25 oct. 2020",
       "titre": "« Vibrations »",
       "lieu": "Tournai",
@@ -32,12 +38,6 @@
         "/media/images/expositions/galery-fleury-03.jpg",
         "/media/images/expositions/galery-fleury-04.jpg"
       ]
-    },
-    {
-      "date": "2025",
-      "titre": "Salon d'Automne ",
-      "lieu": "Paris ",
-      "organisateur": "SAP "
     },
     {
       "date": "25 avril 2018",
@@ -84,6 +84,12 @@
       "photos": [
         "/media/images/expositions/fullsizerender-5.jpg"
       ]
+    },
+    {
+      "date": "avril - mai 2026",
+      "titre": "Empreinte ",
+      "lieu": "Berlin",
+      "organisateur": "Galeria Azur"
     }
   ]
 }
