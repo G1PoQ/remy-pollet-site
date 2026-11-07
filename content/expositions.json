@@ -2,14 +2,12 @@
   "intro": "Foires, galeries et maisons de ventes, de Londres à San Francisco.",
   "photo": "/media/images/expositions/vitrine-remy-pollet.jpg",
   "legende_photo": "Vitrine d'une exposition de Rémy Pollet",
-  "vignette": "/media/images/expositions/visiteuse-toile-noire-creme.jpg",
-  "legende_vignette": "Une visiteuse devant une toile noire de Rémy Pollet",
   "liste": [
     {
       "date": "3 – 25 oct. 2020",
       "titre": "« Vibrations »",
       "lieu": "Tournai",
-      "organisateur": "",
+      "organisateur": "Galerie \"Des cadres et de l'Art\"",
       "photos": [
         "/media/images/expositions/expo-tournai-1.jpg",
         "/media/images/expositions/expotournai.jpg"
@@ -18,8 +16,6 @@
     {
       "date": "Avril 2020",
       "titre": "Sotheby's",
-      "lieu": "",
-      "organisateur": "",
       "photos": [
         "/media/images/expositions/sotherbys-avril-2020-01.jpg",
         "/media/images/expositions/sotherbys-avril-2020-02.jpg"
@@ -50,7 +46,6 @@
       "date": "Avril 2018",
       "titre": "BRAFA",
       "lieu": "Bruxelles",
-      "organisateur": "",
       "photos": [
         "/media/images/expositions/photo-expo-bruxelle.jpg",
         "/media/images/expositions/photo-expo-bruxelle-2.jpg"
@@ -60,7 +55,6 @@
       "date": "2016",
       "titre": "Fall Show",
       "lieu": "San Francisco",
-      "organisateur": "",
       "photos": [
         "/media/images/expositions/expo-fall-show-sf-portrait.jpg"
       ]
