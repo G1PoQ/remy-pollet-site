@@ -521,7 +521,11 @@ async function main() {
     `<meta property="og:url" content="${escAttr(siteUrl)}/">`,
     '<meta property="og:type" content="website">',
     ogImage ? `<meta property="og:image" content="${escAttr(ogImage)}">` : '',
-    '<link rel="icon" href="favicon.svg" type="image/svg+xml">',
+    // Logo « RP » : .ico et .png pour Google et les anciens navigateurs, .svg pour les autres, icône pour l'écran d'accueil des iPhone
+    '<link rel="icon" href="/favicon.ico" sizes="48x48">',
+    '<link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192">',
+    '<link rel="icon" href="/favicon.svg" type="image/svg+xml">',
+    '<link rel="apple-touch-icon" href="/apple-touch-icon.png">',
     '<link rel="preconnect" href="https://fonts.googleapis.com">',
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
     `<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=${ft.g}&family=${fb.g}&family=Courier+Prime:ital@1&display=swap">`,
@@ -532,6 +536,7 @@ async function main() {
   if (!template.includes('<!--HEAD-->') || !template.includes('__DATA__')) throw new Error('Gabarit src/index.html incomplet.');
   await fs.writeFile(`${OUT}/index.html`, template.replace('<!--HEAD-->', head).replace('__DATA__', () => json));
   await fs.copyFile('src/favicon.svg', `${OUT}/favicon.svg`);
+  for (const f of ['favicon.ico', 'icon-192.png', 'apple-touch-icon.png']) await fs.copyFile(`src/icones/${f}`, `${OUT}/${f}`);
   // Pour les moteurs de recherche : robots.txt et plan du site (une seule adresse tant que les pages utilisent « # »)
   await fs.writeFile(`${OUT}/robots.txt`, `User-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\n`);
   const today = new Date().toISOString().slice(0, 10);
