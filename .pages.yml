@@ -1496,6 +1496,7 @@ content:
             fields:
               - { name: titre, label: Titre de la page, type: string }
               - { name: description, label: Description, type: text }
+              - { name: adresse, label: Adresse du site, type: string, description: "Adresse officielle, par exemple https://remypollet.com (utilisée par Google et pour les aperçus de liens). remypollet.com si vide." }
               - { name: visible_google, label: Visible sur Google, type: boolean, description: "À cocher au lancement définitif du site." }
 
       - name: annees

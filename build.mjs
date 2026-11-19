@@ -507,12 +507,20 @@ async function main() {
   const fb = FONTS.texte[str(pol.texte)] || FONTS.texte.hanken;
   const seo = site.referencement || {};
   const title = str(seo.titre) || `${data.site.nom} · Peintre`;
+  // Adresse officielle du site (Réglages du site › Référencement) : sert à Google et aux aperçus de liens.
+  const siteUrl = (str(seo.adresse) || 'https://remypollet.com').replace(/\/+$/, '');
+  const slide0 = hero && hero.slides && hero.slides[0];
+  const ogImage = slide0 && slide0.src ? `${siteUrl}/${slide0.src}` : '';
   const head = [
     `<title>${escAttr(title)}</title>`,
     `<meta name="description" content="${escAttr(seo.description)}">`,
     seo.visible_google === true ? '' : '<meta name="robots" content="noindex">',
     `<meta property="og:title" content="${escAttr(title)}">`,
     `<meta property="og:description" content="${escAttr(seo.description)}">`,
+    `<link rel="canonical" href="${escAttr(siteUrl)}/">`,
+    `<meta property="og:url" content="${escAttr(siteUrl)}/">`,
+    '<meta property="og:type" content="website">',
+    ogImage ? `<meta property="og:image" content="${escAttr(ogImage)}">` : '',
     '<link rel="icon" href="favicon.svg" type="image/svg+xml">',
     '<link rel="preconnect" href="https://fonts.googleapis.com">',
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
@@ -524,6 +532,10 @@ async function main() {
   if (!template.includes('<!--HEAD-->') || !template.includes('__DATA__')) throw new Error('Gabarit src/index.html incomplet.');
   await fs.writeFile(`${OUT}/index.html`, template.replace('<!--HEAD-->', head).replace('__DATA__', () => json));
   await fs.copyFile('src/favicon.svg', `${OUT}/favicon.svg`);
+  // Pour les moteurs de recherche : robots.txt et plan du site (une seule adresse tant que les pages utilisent « # »)
+  await fs.writeFile(`${OUT}/robots.txt`, `User-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\n`);
+  const today = new Date().toISOString().slice(0, 10);
+  await fs.writeFile(`${OUT}/sitemap.xml`, `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>${siteUrl}/</loc><lastmod>${today}</lastmod></url>\n</urlset>\n`);
 
   console.log(`Site assemblé : ${works.length} œuvres, ${series.length} séries, ${sections.length} sections d'accueil.`);
   const recadrees = works.filter((w) => w.recadree).length;
