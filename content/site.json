@@ -5,7 +5,8 @@
     "diaporama": [
       {
         "oeuvre": "615",
-        "cadrage": "haut"
+        "cadrage": "haut",
+        "couleurs_photo": false
       }
     ],
     "duree": 6,
@@ -13,7 +14,7 @@
     "position": "haut"
   },
   "contact": {
-    "email": "remy.pollet.site@outlook.fr",
+    "email": "mgiacco26@gmail.com",
     "visites": "Visites sur rendez-vous",
     "instagram": "https://www.instagram.com/pollet.remy/",
     "intro": "Acquisition, visite d'atelier, prêt pour une exposition : l'atelier répond personnellement à chaque demande.",
