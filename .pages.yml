@@ -1438,7 +1438,8 @@ content:
             label: Coordonnées de l'atelier
             type: object
             fields:
-              - { name: email, label: E-mail, type: string }
+              - { name: email, label: E-mail, type: string, description: "Gardée ici pour mémoire ; affichée sur le site seulement si la case ci-dessous est cochée." }
+              - { name: afficher_email, label: "Afficher l'adresse e-mail sur le site", type: boolean, description: "Décoché : l'adresse n'apparaît nulle part sur le site (ni pied de page, ni page Contact, ni code de la page) ; les visiteurs écrivent par le formulaire." }
               - { name: telephone, label: Téléphone, type: string }
               - { name: adresse, label: Adresse, type: text }
               - { name: visites, label: Visites, type: string, description: "Exemple : « Visites sur rendez-vous »." }

@@ -482,7 +482,10 @@ async function main() {
       nom: str(site.nom) || 'Rémy Pollet',
       sous_titre: str(site.sous_titre),
       menu,
-      contact: { intro: str(contact.intro), email: str(contact.email), telephone: str(contact.telephone),
+      contact: { intro: str(contact.intro),
+        // Adresse e-mail publiée seulement si la case « Afficher l'adresse e-mail sur le site » est cochée
+        // (sinon elle n'apparaît nulle part, pas même dans le code de la page : les visiteurs passent par le formulaire).
+        email: contact.afficher_email === true ? str(contact.email) : '', telephone: str(contact.telephone),
         adresse: str(contact.adresse), visites: str(contact.visites), instagram: str(contact.instagram),
         cle: str(contact.cle_formulaire) },
       pied_de_page: str(site.pied_de_page)
