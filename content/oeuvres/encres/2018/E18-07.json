@@ -7,5 +7,6 @@
   "hauteur": 75,
   "largeur": 54,
   "photo": "/media/oeuvres/encres/2018/E18-07.jpg",
-  "deja_recadree": true
+  "deja_recadree": true,
+  "masquer": true
 }

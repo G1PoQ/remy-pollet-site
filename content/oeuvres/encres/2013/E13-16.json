@@ -7,5 +7,6 @@
   "hauteur": 55,
   "largeur": 39,
   "photo": "/media/oeuvres/encres/2013/E13-16.jpg",
-  "deja_recadree": true
+  "deja_recadree": true,
+  "masquer": true
 }
