@@ -173,6 +173,7 @@ content:
     items:
       - name: encres-2013
         label: Encres 2013
+        description: "Encres datées de 2013. Pour une encre d'une autre année (2021, 2022…), utilisez « Encres 2021 et autres années » : c'est l'année indiquée dans la fiche qui compte sur le site, mais la fiche reste rangée dans la liste où elle a été créée."
         type: collection
         path: content/oeuvres/encres/2013
         format: json
@@ -273,6 +274,7 @@ content:
 
       - name: encres-2014
         label: Encres 2014
+        description: "Encres datées de 2014. Pour une encre d'une autre année (2021, 2022…), utilisez « Encres 2021 et autres années » : c'est l'année indiquée dans la fiche qui compte sur le site, mais la fiche reste rangée dans la liste où elle a été créée."
         type: collection
         path: content/oeuvres/encres/2014
         format: json
@@ -373,6 +375,7 @@ content:
 
       - name: encres-2015
         label: Encres 2015
+        description: "Encres datées de 2015. Pour une encre d'une autre année (2021, 2022…), utilisez « Encres 2021 et autres années » : c'est l'année indiquée dans la fiche qui compte sur le site, mais la fiche reste rangée dans la liste où elle a été créée."
         type: collection
         path: content/oeuvres/encres/2015
         format: json
@@ -473,6 +476,7 @@ content:
 
       - name: encres-2016
         label: Encres 2016
+        description: "Encres datées de 2016. Pour une encre d'une autre année (2021, 2022…), utilisez « Encres 2021 et autres années » : c'est l'année indiquée dans la fiche qui compte sur le site, mais la fiche reste rangée dans la liste où elle a été créée."
         type: collection
         path: content/oeuvres/encres/2016
         format: json
@@ -573,6 +577,7 @@ content:
 
       - name: encres-2017
         label: Encres 2017
+        description: "Encres datées de 2017. Pour une encre d'une autre année (2021, 2022…), utilisez « Encres 2021 et autres années » : c'est l'année indiquée dans la fiche qui compte sur le site, mais la fiche reste rangée dans la liste où elle a été créée."
         type: collection
         path: content/oeuvres/encres/2017
         format: json
@@ -673,6 +678,7 @@ content:
 
       - name: encres-2018
         label: Encres 2018
+        description: "Encres datées de 2018. Pour une encre d'une autre année (2021, 2022…), utilisez « Encres 2021 et autres années » : c'est l'année indiquée dans la fiche qui compte sur le site, mais la fiche reste rangée dans la liste où elle a été créée."
         type: collection
         path: content/oeuvres/encres/2018
         format: json
@@ -773,6 +779,7 @@ content:
 
       - name: encres-2019
         label: Encres 2019
+        description: "Encres datées de 2019. Pour une encre d'une autre année (2021, 2022…), utilisez « Encres 2021 et autres années » : c'est l'année indiquée dans la fiche qui compte sur le site, mais la fiche reste rangée dans la liste où elle a été créée."
         type: collection
         path: content/oeuvres/encres/2019
         format: json
@@ -873,6 +880,7 @@ content:
 
       - name: encres-2020
         label: Encres 2020
+        description: "Encres datées de 2020. Pour une encre d'une autre année (2021, 2022…), utilisez « Encres 2021 et autres années » : c'est l'année indiquée dans la fiche qui compte sur le site, mais la fiche reste rangée dans la liste où elle a été créée."
         type: collection
         path: content/oeuvres/encres/2020
         format: json
@@ -972,8 +980,8 @@ content:
             description: "Cochez pour retirer l'œuvre du site. Décochez pour la remettre. Rien n'est effacé."
 
       - name: encres-autres
-        label: Encres, autres années
-        description: "Pour ajouter une encre d'une autre année que 2013 à 2020."
+        label: Encres 2021 et autres années
+        description: "Pour ajouter une encre de 2021 ou après (ou de toute année autre que 2013 à 2020). Le site la range automatiquement dans la bonne année."
         type: collection
         path: content/oeuvres/encres/autres
         format: json
