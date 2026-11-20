@@ -1,0 +1,34 @@
+# Après chaque enregistrement d'une encre dans l'administration : range la fiche dans le dossier
+# de son année et crée la liste « Encres <année> » si elle n'existe pas encore (outils/ranger-encres.mjs).
+name: Ranger les encres par année
+
+on:
+  push:
+    branches: [main]
+    paths: ['content/oeuvres/encres/**']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ranger-encres
+  cancel-in-progress: false
+
+jobs:
+  ranger:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ranger les encres
+        run: node outils/ranger-encres.mjs
+      - name: Enregistrer le rangement
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "Rangement automatique"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -A content/oeuvres/encres .pages.yml
+            git commit -m "Rangement automatique des encres par année"
+            git pull --rebase origin main
+            git push
+          fi
