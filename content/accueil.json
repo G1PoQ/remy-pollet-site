@@ -9,14 +9,14 @@
         "704",
         "663"
       ],
-      "lien_formats": true,
+      "lien_formats": false,
       "masquer": false
     },
     {
       "type": "catalogue",
       "surtitre": "Publication",
       "titre": "L'oeuvre à \n*l'huile*",
-      "texte": "La nouvelle édition de l'œuvre à l'huile de Rémy Pollet, à feuilleter en ligne page après page. Un exemplaire imprimé peut être demandé en ligne. ",
+      "texte": "La nouvelle édition de l'œuvre à l'huile de 1995 à 2025 à feuilleter en ligne. ",
       "lien": "https://online.fliphtml5.com/ytcdo/qyjy/#p=1",
       "libelle_bouton": "Feuilleter le catalogue",
       "couverture": "/media/images/divers/catalogue-echo-du-geste.jpg",
