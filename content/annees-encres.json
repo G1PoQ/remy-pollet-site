@@ -2,6 +2,8 @@
   {
     "annee": "2015",
     "vignette": "E15-103",
-    "cadrage": "entiere"
+    "cadrage": "entiere",
+    "entete": "E15-102",
+    "cadrage_entete": "centre"
   }
 ]
