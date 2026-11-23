@@ -98,6 +98,7 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
 .mast-slides{position:absolute;inset:0}
 .mast-slide{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover;opacity:0;transition:opacity var(--fade) ease}
 .mast-slide.is-on{opacity:1}
+.mast-slide.entiere{object-fit:contain;padding:clamp(12px,1.6vw,22px) 0}
 .mast-top{position:absolute;z-index:2;left:0;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:24px 40px 20px var(--mpad);background:var(--wall)}
 .mast-name{font-family:var(--display);font-weight:400;text-transform:uppercase;line-height:1;margin:0 -.4em 0 0;font-size:clamp(28px,2.36vw,34px);letter-spacing:.4em}
 /* Le sous-titre occupe toute la largeur du nom : son dernier mot finit sous la dernière lettre du nom */
@@ -141,6 +142,7 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
 .cover-img{position:relative;aspect-ratio:4/3;max-width:100%;overflow:hidden;background:var(--panel)}
 .cover-img img{width:100%;height:100%;max-width:none;object-fit:cover;transition:transform 1.2s cubic-bezier(.2,.6,.2,1)}
 .cover:hover .cover-img img{transform:scale(1.045)}
+.cover-img img.entiere{object-fit:contain;padding:7%}
 .cover-meta{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 12px}
 .cover-meta .muted{font-size:14px;color:var(--muted)}
 .browse{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;padding-block:4px 36px}
@@ -154,6 +156,7 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
 .toggle-f span{border-bottom:1px solid currentColor;padding-bottom:3px}
 .banner{position:relative;min-height:clamp(260px,30vw,380px);display:flex;align-items:flex-end;overflow:hidden;background:var(--panel);margin-bottom:28px}
 .banner > img{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover}
+.banner > img.entiere{object-fit:contain;padding:clamp(16px,2.4vw,32px)}
 .plate{position:relative;margin:clamp(16px,3vw,32px);background:var(--wall);padding:22px 28px;display:flex;flex-direction:column;gap:6px;max-width:calc(100% - 32px)}
 .plate h2{font-size:clamp(32px,4vw,52px);line-height:1.1}
 .plate .row-meta{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:14px;color:var(--ink-2)}
@@ -575,7 +578,8 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
   }
   function coverImg(c, sizes, eager){
     var w = byN[c.slug];
-    return '<img src="img/o/' + w.slug + '.jpg" srcset="' + srcset(w) + '" sizes="' + sizes + '" alt="" decoding="async" ' + (eager ? '' : 'loading="lazy" ') + 'style="object-position:' + c.pos + ';background:' + w.bg + '">';
+    // Image entière : pas de fond propre, l'œuvre est posée sur le fond du cadre.
+    return '<img' + (c.entiere ? ' class="entiere"' : '') + ' src="img/o/' + w.slug + '.jpg" srcset="' + srcset(w) + '" sizes="' + sizes + '" alt="" decoding="async" ' + (eager ? '' : 'loading="lazy" ') + 'style="object-position:' + c.pos + (c.entiere ? '' : ';background:' + w.bg) + '">';
   }
   function serieTile(s, n){
     return '<a class="cover" href="#oeuvres" data-serie="' + esc(s.nom) + '"><div class="cover-img">' + coverImg(s.cover, '(max-width:520px) 92vw, (max-width:900px) 46vw, 30vw') + '</div>' +
@@ -640,7 +644,7 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
     }
     var S = HERO.slides, n = S.length, w0 = byN[S[0].slug];
     var slides = S.map(function(x, i){
-      return '<img class="mast-slide' + (i ? '' : ' is-on') + '" ' + (i ? 'data-src' : 'src') + '="' + x.src + '" alt="" style="background:' + x.bg + '"' + (i ? '' : ' fetchpriority="high"') + '>';
+      return '<img class="mast-slide' + (x.entiere ? ' entiere' : '') + (i ? '' : ' is-on') + '" ' + (i ? 'data-src' : 'src') + '="' + x.src + '" alt=""' + (x.entiere ? '' : ' style="background:' + x.bg + '"') + (i ? '' : ' fetchpriority="high"') + '>';
     }).join('');
     var meta = '<div class="mast-meta">' +
       (n > 1 ? '<div class="mast-dots" role="group" aria-label="Toiles du diaporama">' + S.map(function(x, i){
@@ -649,7 +653,7 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
         }).join('') + '</div>' +
         '<span class="cartel mast-count" aria-hidden="true">01 / ' + (n < 10 ? '0' : '') + n + '</span>' +
         '<button type="button" class="mast-pause" aria-pressed="false" aria-label="Mettre le diaporama en pause"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1h2v8H2zM6 1h2v8H6z" fill="currentColor"/></svg></button>' : '') +
-      '<a class="cartel mast-credit" href="#oeuvre-' + w0.slug + '">' + esc(w0.t) + ', ' + w0.y + ' (détail) →</a></div>';
+      '<a class="cartel mast-credit" href="#oeuvre-' + w0.slug + '">' + esc(w0.t) + ', ' + w0.y + (S[0].entiere ? '' : ' (détail)') + ' →</a></div>';
     return '<div class="wrap mast-frame"><section class="mast tone-' + S[0].tone + (n > 1 ? '' : ' is-single') + '"' + (n > 1 ? ' aria-roledescription="diaporama"' : '') + ' aria-label="' + (n > 1 ? 'Toiles de ' : 'Toile de ') + esc(SITE.nom) + '" style="--d:' + HERO.duree + 's">' +
       '<div class="mast-art"><div class="mast-slides">' + slides + '</div>' + top + '</div>' +
       '<div class="mast-bot">' + nav + meta + '</div></section></div>';
@@ -680,7 +684,7 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
         var x = HERO.slides[k], w = byN[x.slug];
         m.classList.toggle('tone-dark', x.tone === 'dark'); m.classList.toggle('tone-light', x.tone !== 'dark');
         count.textContent = pad(k + 1) + ' / ' + pad(n);
-        if (w) { credit.href = '#oeuvre-' + w.slug; credit.textContent = w.t + ', ' + w.y + ' (détail) →'; }
+        if (w) { credit.href = '#oeuvre-' + w.slug; credit.textContent = w.t + ', ' + w.y + (x.entiere ? '' : ' (détail)') + ' →'; }
         show.i = k; updateTop(); schedule();
         load((k + 1) % n, function(){});
       });
@@ -844,7 +848,7 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
         '<div class="plate"><span class="eyebrow">' + (bs ? 'Série' : esc(catName(st.cat)) + ' · Année') + '</span><h2 class="display">' + esc(bc.nom) + '</h2>' +
         (bs && bs.annees ? '<div class="row-meta"><span>' + esc(bs.annees) + '</span></div>' : '') +
         (bs && bs.description ? '<p class="notice" style="max-width:34em">' + inline(bs.description) + '</p>' : '') +
-        '<span class="cartel">Image de présentation : ' + esc(cw.t) + ', ' + cw.y + ' (détail)</span></div>' +
+        '<span class="cartel">Image de présentation : ' + esc(cw.t) + ', ' + cw.y + (bc.cover.entiere ? '' : ' (détail)') + '</span></div>' +
         '<button type="button" class="banner-close" data-reset>' + ({huiles:'Toutes les huiles', encres:'Toutes les encres', dessins:'Tous les dessins'}[st.cat] || 'Toutes les œuvres') + ' ✕</button></section>';
     }
     // Filtres : seulement les choix qui donnent des œuvres avec les autres filtres

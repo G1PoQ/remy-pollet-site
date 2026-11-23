@@ -24,6 +24,9 @@ const pct = (v, fallback = 50) => {
   if (typeof v === 'string' && CADRAGES[v.trim()] !== undefined) return CADRAGES[v.trim()];
   const n = num(v); return n === null ? fallback : Math.max(0, Math.min(100, n));
 };
+// « Image entière » : l'œuvre est montrée sans recadrage, posée sur le fond du cadre.
+const ENTIERE = (v) => typeof v === 'string' && v.trim() === 'entiere';
+const cadreDe = (slug, v) => (ENTIERE(v) ? { slug, pos: '50% 50%', entiere: true } : { slug, pos: `50% ${pct(v)}%` });
 const slugify = (s) => str(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
   .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'x';
 const mediaPath = (p) => str(p).replace(/^\/+/, '');
@@ -219,22 +222,23 @@ async function brighten(pipeline, cible = null) {
   return raw(data);
 }
 
-async function processHero(slug, position, i, garder = false, cible = null) {
+async function processHero(slug, position, i, garder = false, cible = null, entiere = false) {
   const { file, recadrer, angle } = sources.get(slug);
   const img = await decode(file, angle);
   const box = recadrer ? findCanvas(img) : { left: 0, top: 0, width: img.width, height: img.height };
-  const bandH = Math.min(box.height, Math.round(box.width / 3));
+  // Image entière : toute la toile ; sinon une bande de la hauteur d'un tiers de la largeur.
+  const bandH = entiere ? box.height : Math.min(box.height, Math.round(box.width / 3));
   const top = box.top + Math.round((box.height - bandH) * position / 100);
   const band = { left: box.left, top, width: box.width, height: bandH };
   const src = `img/entete-${i + 1}.jpg`;
-  const bande = region(img, band).resize({ width: 2200, withoutEnlargement: true });
+  const bande = region(img, band).resize(entiere ? { width: 2200, height: 1100, fit: 'inside', withoutEnlargement: true } : { width: 2200, withoutEnlargement: true });
   await (garder ? bande : await brighten(bande, cible))
     .jpeg({ quality: 82, progressive: true, mozjpeg: true }).toFile(`${OUT}/${src}`);
   const zone = (x, y, w, h) => ({ left: band.left + Math.round(band.width * x), top: band.top + Math.round(bandH * y),
     width: Math.max(1, Math.round(band.width * w)), height: Math.max(1, Math.round(bandH * h)) });
   const nom = average(img, zone(0, 0.12, 0.45, 0.42)), bas = average(img, zone(0, 0.78, 1, 0.2));
   const lum = nom.lum * 0.65 + bas.lum * 0.35;
-  return { src, tone: lum < 0.55 ? 'dark' : 'light', bg: average(img, band).hex };
+  return { src, tone: lum < 0.55 ? 'dark' : 'light', bg: average(img, band).hex, ...(entiere ? { entiere: true } : {}) };
 }
 
 const looseDone = new Map();
@@ -398,7 +402,7 @@ async function main() {
     if (!ws.length) continue;
     const cw = ref(s.presentation) || ws[0];
     series.push({ nom, annees: str(s.annees) || yearRange(ws), count: ws.length, description: str(s.description),
-      cover: { slug: cw.slug, pos: `50% ${pct(s.cadrage)}%` } });
+      cover: cadreDe(cw.slug, s.cadrage) });
   }
   for (const w of works) {
     if (w.s && !seen.has(w.s)) {
@@ -427,10 +431,8 @@ async function main() {
     };
     const tw = cherche(o.vignette ?? o.presentation, 'vignette');
     const hw = cherche(o.entete, 'en-tête');
-    const tpos = `50% ${pct(o.cadrage)}%`;
-    const hpos = str(o.cadrage_entete) ? `50% ${pct(o.cadrage_entete)}%` : tpos;
-    const tile = tw ? { slug: tw.slug, pos: tpos } : null;
-    const head = (hw || tw) ? { slug: (hw || tw).slug, pos: hpos } : null;
+    const tile = tw ? cadreDe(tw.slug, o.cadrage) : null;
+    const head = (hw || tw) ? cadreDe((hw || tw).slug, str(o.cadrage_entete) ? o.cadrage_entete : o.cadrage) : null;
     return (tile || head) ? { tile, head } : null;
   };
   const years = [...new Set(works.map((w) => w.y))].sort((a, b) => b - a).map((y) => {
@@ -459,14 +461,14 @@ async function main() {
 
   // En-tête : diaporama de toiles (à défaut, la toile seule, puis la première œuvre)
   const ent = site.entete || {};
-  let choix = asList(ent.diaporama).map((d) => ({ w: ref(d && d.oeuvre), position: pct(d && d.cadrage), garder: !!(d && d.couleurs_photo) })).filter((d) => d.w);
-  if (!choix.length && ref(ent.oeuvre)) choix = [{ w: ref(ent.oeuvre), position: pct(ent.position) }];
+  let choix = asList(ent.diaporama).map((d) => ({ w: ref(d && d.oeuvre), position: pct(d && d.cadrage), entiere: ENTIERE(d && d.cadrage), garder: !!(d && d.couleurs_photo) })).filter((d) => d.w);
+  if (!choix.length && ref(ent.oeuvre)) choix = [{ w: ref(ent.oeuvre), position: pct(ent.position), entiere: ENTIERE(ent.position) }];
   if (!choix.length && works[0]) choix = [{ w: works[0], position: 50 }];
   let hero = null;
   if (choix.length) {
     const slides = [];
     for (const [i, d] of choix.slice(0, 12).entries()) {
-      try { slides.push({ slug: d.w.slug, ...(await processHero(d.w.slug, d.position, i, d.garder, blancAccrochage)) }); }
+      try { slides.push({ slug: d.w.slug, ...(await processHero(d.w.slug, d.position, i, d.garder, blancAccrochage, d.entiere)) }); }
       catch (e) { warn(`Toile ${d.w.n} de l'en-tête illisible : ignorée.`); }
     }
     const duree = num(ent.duree);

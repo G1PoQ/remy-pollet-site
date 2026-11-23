@@ -35,6 +35,7 @@ components:
     type: select
     options:
       values:
+        - { name: entiere, label: "Image entière" }
         - { name: tout-en-haut, label: "Tout en haut" }
         - { name: haut, label: "Haut" }
         - { name: haut-centre, label: "Entre le haut et le centre" }
