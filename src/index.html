@@ -581,17 +581,18 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
     return '<a class="cover" href="#oeuvres" data-serie="' + esc(s.nom) + '"><div class="cover-img">' + coverImg(s.cover, '(max-width:520px) 92vw, (max-width:900px) 46vw, 30vw') + '</div>' +
       '<div class="cover-meta"><span class="card-title">' + esc(s.nom) + '</span>' + (s.annees ? '<span class="muted">' + esc(s.annees) + '</span>' : '') + '</div></a>';
   }
-  // Image d'une année dans une partie du catalogue : l'encre choisie (Réglages › Images des années) pour les encres,
-  // sinon l'image de l'année si elle appartient à cette partie, sinon la première œuvre de cette partie et de cette année.
-  function yearCover(y, c){
-    if (c === 'encres' && y.encre) return y.encre;
+  // Image d'une année dans une partie du catalogue (Vignettes et en-têtes des années) : kind « tile » pour la
+  // vignette, « head » pour la photo d'en-tête ; à défaut, la première œuvre de cette partie et de cette année.
+  function yearImg(y, c, kind){
+    var o = y.img && y.img[c];
+    if (o && o[kind]) return o[kind];
     var w = byN[y.cover.slug];
     if (w && w.cat === c) return y.cover;
     var alt = WORKS.filter(function(x){ return x.cat === c && String(x.y) === y.nom; })[0];
     return alt ? {slug: alt.slug, pos: '50% 50%'} : y.cover;
   }
   function yearTile(y, n){
-    return '<a class="cover" href="#oeuvres" data-annee="' + y.nom + '"><div class="cover-img">' + coverImg(yearCover(y, st.cat), '(max-width:520px) 92vw, (max-width:900px) 46vw, 30vw') + '</div>' +
+    return '<a class="cover" href="#oeuvres" data-annee="' + y.nom + '"><div class="cover-img">' + coverImg(yearImg(y, st.cat, 'tile'), '(max-width:520px) 92vw, (max-width:900px) 46vw, 30vw') + '</div>' +
       '<div class="cover-meta"><span class="card-title">' + y.nom + '</span></div></a>';
   }
   function crumbs(items){
@@ -836,7 +837,7 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
     var banner = '';
     var bs = st.cat === 'huiles' && SERIES.filter(function(x){ return x.nom === st.serie && !GROUPES[x.nom]; })[0];
     var by = !bs && YEARS.filter(function(y){ return y.nom === st.annee; })[0];
-    var bc = bs || (by && {nom: by.nom, cover: yearCover(by, st.cat)});
+    var bc = bs || (by && {nom: by.nom, cover: yearImg(by, st.cat, 'head')});
     if (bc) {
       var cw = byN[bc.cover.slug];
       banner = '<section class="banner">' + coverImg(bc.cover, '(max-width:1300px) 96vw, 1240px', true) +

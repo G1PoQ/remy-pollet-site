@@ -408,21 +408,40 @@ async function main() {
     }
   }
 
-  // Années (Réglages › Images des années) : une huile choisie dans la liste, ou le numéro d'une encre
-  // tapé à la main (« E17-12 » ; majuscules, espaces et tirets indifférents), pour la partie Encres de Chine.
+  // Années : vignette (Œuvres › Par année) et photo d'en-tête (en haut de la page d'une année), réglées
+  // séparément pour les huiles (content/annees.json, toile choisie dans une liste) et pour les encres
+  // de Chine (content/annees-encres.json, numéro tapé : « E17-12 », majuscules, espaces et tirets indifférents).
+  // En-tête vide : celui-ci reprend la vignette. Année sans réglage : sa première œuvre.
   const yearSettings = asList(await readJSON('content/annees.json', []));
+  const inkYearSettings = asList(await readJSON('content/annees-encres.json', []));
   const sansForme = (v) => str(v).toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const trouverHuile = (v) => ref(v);
+  const trouverEncre = (v) => works.find((w) => sansForme(w.n) === sansForme(v));
+  const imagesAnnee = (o, y, trouver, partie) => {
+    if (!o) return null;
+    const cherche = (v, quoi) => {
+      if (!str(v)) return null;
+      const w = trouver(v);
+      if (!w) warn(`Vignettes et en-têtes des années (${partie}, ${y}) : ${quoi} « ${str(v)} » introuvable (ou masquée) ; image par défaut.`);
+      return w;
+    };
+    const tw = cherche(o.vignette ?? o.presentation, 'vignette');
+    const hw = cherche(o.entete, 'en-tête');
+    const tpos = `50% ${pct(o.cadrage)}%`;
+    const hpos = str(o.cadrage_entete) ? `50% ${pct(o.cadrage_entete)}%` : tpos;
+    const tile = tw ? { slug: tw.slug, pos: tpos } : null;
+    const head = (hw || tw) ? { slug: (hw || tw).slug, pos: hpos } : null;
+    return (tile || head) ? { tile, head } : null;
+  };
   const years = [...new Set(works.map((w) => w.y))].sort((a, b) => b - a).map((y) => {
-    const o = yearSettings.find((e) => num(e.annee) === y);
     const ws = works.filter((w) => w.y === y);
-    const pos = `50% ${pct(o ? o.cadrage : 50)}%`;
-    const cw = (o && ref(o.presentation)) || ws[0];
-    const entry = { nom: String(y), count: ws.length, cover: { slug: cw.slug, pos } };
-    if (o && str(o.encre)) {
-      const ew = ws.find((w) => sansForme(w.n) === sansForme(o.encre));
-      if (ew) entry.encre = { slug: ew.slug, pos };
-      else warn(`Images des années : encre « ${str(o.encre)} » introuvable parmi les œuvres de ${y} (ou masquée) ; image par défaut.`);
-    }
+    const entry = { nom: String(y), count: ws.length, cover: { slug: ws[0].slug, pos: '50% 50%' } };
+    const img = {};
+    const h = imagesAnnee(yearSettings.find((e) => num(e.annee) === y), y, trouverHuile, 'huiles');
+    const e = imagesAnnee(inkYearSettings.find((e) => num(e.annee) === y), y, trouverEncre, 'encres de Chine');
+    if (h) img.huiles = h;
+    if (e) img.encres = e;
+    if (h || e) entry.img = img;
     return entry;
   });
 

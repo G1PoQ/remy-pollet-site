@@ -1,22 +1,22 @@
 [
   {
     "annee": "2025",
-    "presentation": "669",
+    "vignette": "669",
     "cadrage": "centre"
   },
   {
     "annee": "2024",
-    "presentation": "631",
+    "vignette": "631",
     "cadrage": "haut-centre"
   },
   {
     "annee": "2023",
-    "presentation": "614",
+    "vignette": "614",
     "cadrage": "centre"
   },
   {
     "annee": "1997",
-    "presentation": "610",
+    "vignette": "610",
     "cadrage": "centre-bas"
   }
 ]

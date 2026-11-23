@@ -35,13 +35,13 @@ components:
     type: select
     options:
       values:
-        - { name: tout-en-haut, label: "Tout en haut de la toile" }
-        - { name: haut, label: "Haut de la toile" }
+        - { name: tout-en-haut, label: "Tout en haut" }
+        - { name: haut, label: "Haut" }
         - { name: haut-centre, label: "Entre le haut et le centre" }
-        - { name: centre, label: "Centre de la toile" }
+        - { name: centre, label: "Centre" }
         - { name: centre-bas, label: "Entre le centre et le bas" }
-        - { name: bas, label: "Bas de la toile" }
-        - { name: tout-en-bas, label: "Tout en bas de la toile" }
+        - { name: bas, label: "Bas" }
+        - { name: tout-en-bas, label: "Tout en bas" }
   choix_oeuvre:
     type: reference
     options:
@@ -1325,6 +1325,42 @@ content:
         type: text
         description: "Affichée sur le bandeau de la série."
 
+  - name: images_annees
+    label: Vignettes et en-têtes des années
+    type: group
+    items:
+      - name: annees
+        label: Huiles
+        description: "Pour chaque année des huiles : la vignette de présentation (Œuvres › Huiles › Par année) et la photo d'en-tête (en haut de la page quand on ouvre l'année). Une ligne par année. Une année sans ligne montre sa première toile."
+        type: file
+        path: content/annees.json
+        format: json
+        list: true
+        operations:
+          delete: false
+        fields:
+          - { name: annee, label: Année, type: string, required: true }
+          - { name: vignette, label: Vignette de présentation, component: choix_oeuvre, description: "La toile montrée dans la vignette de l'année." }
+          - { name: cadrage, label: Partie de la toile montrée dans la vignette, component: cadrage, description: "Laissez vide pour le centre." }
+          - { name: entete, label: Photo d'en-tête de l'année, component: choix_oeuvre, description: "La grande photo en haut de la page de l'année. Laissez vide pour reprendre la toile de la vignette." }
+          - { name: cadrage_entete, label: Partie de la toile montrée dans l'en-tête, component: cadrage, description: "Laissez vide pour reprendre celle de la vignette." }
+
+      - name: annees_encres
+        label: Encres de Chine
+        description: "Pour chaque année des encres : la vignette de présentation (Œuvres › Encres de Chine › Par année) et la photo d'en-tête (en haut de la page quand on ouvre l'année). Une ligne par année. Tapez le numéro de l'encre tel qu'il figure dans sa liste, par exemple E17-12. Une année sans ligne montre sa première encre."
+        type: file
+        path: content/annees-encres.json
+        format: json
+        list: true
+        operations:
+          delete: false
+        fields:
+          - { name: annee, label: Année, type: string, required: true }
+          - { name: vignette, label: Vignette de présentation (numéro de l'encre), type: string, description: "Par exemple E17-12. Si le numéro est introuvable, la première encre de l'année est montrée." }
+          - { name: cadrage, label: Partie de l'encre montrée dans la vignette, component: cadrage, description: "Laissez vide pour le centre." }
+          - { name: entete, label: Photo d'en-tête de l'année (numéro de l'encre), type: string, description: "Laissez vide pour reprendre l'encre de la vignette." }
+          - { name: cadrage_entete, label: Partie de l'encre montrée dans l'en-tête, component: cadrage, description: "Laissez vide pour reprendre celle de la vignette." }
+
   - name: pages
     label: Pages du site
     type: group
@@ -1619,17 +1655,3 @@ content:
               - { name: adresse, label: Adresse du site, type: string, description: "Adresse officielle, par exemple https://remypollet.com (utilisée par Google et pour les aperçus de liens). remypollet.com si vide." }
               - { name: visible_google, label: Visible sur Google, type: boolean, description: "À cocher au lancement définitif du site." }
 
-      - name: annees
-        label: Images des années
-        description: "Image de chaque année dans Œuvres › Par année (huiles et encres de Chine). Une ligne par année ; une année sans ligne montre sa première œuvre."
-        type: file
-        path: content/annees.json
-        format: json
-        list: true
-        operations:
-          delete: false
-        fields:
-          - { name: annee, label: Année, type: string, required: true }
-          - { name: presentation, label: "Huile de présentation (années des huiles)", component: choix_oeuvre, description: "Pour une année d'huiles : choisissez la toile dans la liste." }
-          - { name: encre, label: "Encre de présentation (années des encres de Chine)", type: string, description: "Pour une année d'encres : tapez le numéro de l'encre, tel qu'il figure dans Encres de Chine › Encres de l'année (exemple : E17-12). Si le numéro est introuvable, la première encre de l'année est montrée." }
-          - { name: cadrage, label: Partie de l'œuvre montrée, component: cadrage }
