@@ -408,13 +408,22 @@ async function main() {
     }
   }
 
-  // Années
+  // Années (Réglages › Images des années) : une huile choisie dans la liste, ou le numéro d'une encre
+  // tapé à la main (« E17-12 » ; majuscules, espaces et tirets indifférents), pour la partie Encres de Chine.
   const yearSettings = asList(await readJSON('content/annees.json', []));
+  const sansForme = (v) => str(v).toUpperCase().replace(/[^A-Z0-9]/g, '');
   const years = [...new Set(works.map((w) => w.y))].sort((a, b) => b - a).map((y) => {
     const o = yearSettings.find((e) => num(e.annee) === y);
     const ws = works.filter((w) => w.y === y);
+    const pos = `50% ${pct(o ? o.cadrage : 50)}%`;
     const cw = (o && ref(o.presentation)) || ws[0];
-    return { nom: String(y), count: ws.length, cover: { slug: cw.slug, pos: `50% ${pct(o ? o.cadrage : 50)}%` } };
+    const entry = { nom: String(y), count: ws.length, cover: { slug: cw.slug, pos } };
+    if (o && str(o.encre)) {
+      const ew = ws.find((w) => sansForme(w.n) === sansForme(o.encre));
+      if (ew) entry.encre = { slug: ew.slug, pos };
+      else warn(`Images des années : encre « ${str(o.encre)} » introuvable parmi les œuvres de ${y} (ou masquée) ; image par défaut.`);
+    }
+    return entry;
   });
 
   // Accueil (lu ici : l'en-tête s'accorde sur le blanc des œuvres de l'accrochage)
@@ -468,6 +477,7 @@ async function main() {
   // Pages
   const bio = await readJSON('content/biographie.json', {});
   const expo = await readJSON('content/expositions.json', {});
+  const pageOeuvres = await readJSON('content/page-oeuvres.json', {});
   const TARGETS = { accueil: '#accueil', oeuvres: '#oeuvres', expositions: '#expositions', biographie: '#biographie', contact: '#contact' };
   const menu = asList(site.menu).map((m) => {
     const cible = str(m.cible) || 'lien';
@@ -492,6 +502,7 @@ async function main() {
     },
     hero, works, series, years,
     accueil: sections,
+    oeuvres: { intro: str(pageOeuvres.intro) },
     biographie: { intro: str(bio.intro), oeuvre: refs(bio.oeuvre)[0] || null,
       portrait: bio.portrait ? await processLoose(bio.portrait) : null, legende: str(bio.legende_portrait),
       video: bio.video ? await processVideo(bio.video) : null, affiche: bio.affiche_video ? await processLoose(bio.affiche_video) : null,

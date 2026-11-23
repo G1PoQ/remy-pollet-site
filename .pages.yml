@@ -62,8 +62,8 @@ content:
       - { name: commencer, label: "Pour commencer", type: text, readonly: true }
       - { name: ajouter, label: "Ajouter une œuvre", type: text, readonly: true }
       - { name: retirer, label: "Corriger ou retirer une œuvre", type: text, readonly: true }
-      - { name: series, label: "Les séries", type: text, readonly: true }
-      - { name: accueil, label: "La page d'accueil", type: text, readonly: true }
+      - { name: series, label: "Séries et images des années", type: text, readonly: true }
+      - { name: accueil, label: "Les pages du site", type: text, readonly: true }
       - { name: textes, label: "Écrire un texte", type: text, readonly: true }
       - { name: probleme, label: "En cas de doute", type: text, readonly: true }
 
@@ -1453,6 +1453,16 @@ content:
                   - { name: nombre, label: Nombre d'expositions, type: number, description: "4 si vide." }
                   - { name: masquer, label: Masquer cette section, type: boolean }
 
+      - name: page_oeuvres
+        label: Œuvres
+        type: file
+        path: content/page-oeuvres.json
+        format: json
+        operations:
+          delete: false
+        fields:
+          - { name: intro, label: Introduction, type: text, description: "Texte affiché sous le titre « Œuvres », au-dessus des onglets Huiles, Encres de Chine et Dessins. Pour mettre un mot en italique, entourez-le d'astérisques : *le noir*. Laissez vide pour ne rien afficher." }
+
       - name: biographie
         label: Biographie
         type: file
@@ -1611,6 +1621,7 @@ content:
 
       - name: annees
         label: Images des années
+        description: "Image de chaque année dans Œuvres › Par année (huiles et encres de Chine). Une ligne par année ; une année sans ligne montre sa première œuvre."
         type: file
         path: content/annees.json
         format: json
@@ -1619,5 +1630,6 @@ content:
           delete: false
         fields:
           - { name: annee, label: Année, type: string, required: true }
-          - { name: presentation, label: Image de présentation, component: choix_oeuvre }
-          - { name: cadrage, label: Partie de la toile montrée, component: cadrage }
+          - { name: presentation, label: "Huile de présentation (années des huiles)", component: choix_oeuvre, description: "Pour une année d'huiles : choisissez la toile dans la liste." }
+          - { name: encre, label: "Encre de présentation (années des encres de Chine)", type: string, description: "Pour une année d'encres : tapez le numéro de l'encre, tel qu'il figure dans Encres de Chine › Encres de l'année (exemple : E17-12). Si le numéro est introuvable, la première encre de l'année est montrée." }
+          - { name: cadrage, label: Partie de l'œuvre montrée, component: cadrage }

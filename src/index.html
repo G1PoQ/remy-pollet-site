@@ -518,7 +518,7 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
   /* Toutes les données viennent de l'administration (dossier content/), assemblées par build.mjs. */
   var DATA = JSON.parse(document.getElementById('site-data').textContent);
   var SITE = DATA.site, WORKS = DATA.works, SERIES = DATA.series, YEARS = DATA.years, HERO = DATA.hero;
-  var EXPO = DATA.expositions, BIO = DATA.biographie, SECTIONS = DATA.accueil;
+  var EXPO = DATA.expositions, BIO = DATA.biographie, SECTIONS = DATA.accueil, PAGE_OEUVRES = DATA.oeuvres || {};
   var TECH_SHORT = {'Huile sur toile':'Huiles', 'Encre de Chine sur papier':'Encres', 'Feutre sur papier':'Feutres', 'Dessin':'Dessins', 'Autre':'Autres'};
 
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
@@ -581,8 +581,17 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
     return '<a class="cover" href="#oeuvres" data-serie="' + esc(s.nom) + '"><div class="cover-img">' + coverImg(s.cover, '(max-width:520px) 92vw, (max-width:900px) 46vw, 30vw') + '</div>' +
       '<div class="cover-meta"><span class="card-title">' + esc(s.nom) + '</span>' + (s.annees ? '<span class="muted">' + esc(s.annees) + '</span>' : '') + '</div></a>';
   }
+  // Image d'une année dans une partie du catalogue : l'encre choisie (Réglages › Images des années) pour les encres,
+  // sinon l'image de l'année si elle appartient à cette partie, sinon la première œuvre de cette partie et de cette année.
+  function yearCover(y, c){
+    if (c === 'encres' && y.encre) return y.encre;
+    var w = byN[y.cover.slug];
+    if (w && w.cat === c) return y.cover;
+    var alt = WORKS.filter(function(x){ return x.cat === c && String(x.y) === y.nom; })[0];
+    return alt ? {slug: alt.slug, pos: '50% 50%'} : y.cover;
+  }
   function yearTile(y, n){
-    return '<a class="cover" href="#oeuvres" data-annee="' + y.nom + '"><div class="cover-img">' + coverImg(y.cover, '(max-width:520px) 92vw, (max-width:900px) 46vw, 30vw') + '</div>' +
+    return '<a class="cover" href="#oeuvres" data-annee="' + y.nom + '"><div class="cover-img">' + coverImg(yearCover(y, st.cat), '(max-width:520px) 92vw, (max-width:900px) 46vw, 30vw') + '</div>' +
       '<div class="cover-meta"><span class="card-title">' + y.nom + '</span></div></a>';
   }
   function crumbs(items){
@@ -809,7 +818,7 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
   function oeuvresPage(){
     var list = filtered();
     var head = '<div class="page-head">' + crumbs(['<a href="#oeuvres">Œuvres</a>', '<span>' + esc(catName(st.cat)) + '</span>']) +
-      '<h1 class="display">Œuvres</h1><p class="lede">' + (WORKS.length ? 'Les huiles, les encres de Chine et les dessins. Entrez par une série ou une année, ou affichez tout et affinez avec les filtres.' : 'Les œuvres seront bientôt présentées ici.') + '</p></div>';
+      '<h1 class="display">Œuvres</h1>' + (!WORKS.length ? '<p class="lede">Les œuvres seront bientôt présentées ici.</p>' : PAGE_OEUVRES.intro ? '<p class="lede">' + inline(PAGE_OEUVRES.intro) + '</p>' : '') + '</div>';
     if (!WORKS.length) return '<div class="wrap">' + head + '<div class="empty-site"></div></div>';
     var cats = CATS.length > 1 ? '<nav class="cats" aria-label="Parties du catalogue">' + CATS.map(function(c){
       return '<a href="#oeuvres/' + c[0] + '" aria-current="' + (st.cat === c[0]) + '">' + esc(c[1]) + '</a>';
@@ -827,10 +836,9 @@ h2.display{font-size:clamp(30px,3.6vw,46px);line-height:1.12}
     var banner = '';
     var bs = st.cat === 'huiles' && SERIES.filter(function(x){ return x.nom === st.serie && !GROUPES[x.nom]; })[0];
     var by = !bs && YEARS.filter(function(y){ return y.nom === st.annee; })[0];
-    var bc = bs || by;
+    var bc = bs || (by && {nom: by.nom, cover: yearCover(by, st.cat)});
     if (bc) {
       var cw = byN[bc.cover.slug];
-      if (by && cw.cat !== st.cat) { var alt0 = pool('annee').filter(function(w){ return String(w.y) === st.annee; })[0]; if (alt0) { cw = alt0; bc = {nom: by.nom, cover: {slug: alt0.slug, pos: '50% 50%'}}; } }
       banner = '<section class="banner">' + coverImg(bc.cover, '(max-width:1300px) 96vw, 1240px', true) +
         '<div class="plate"><span class="eyebrow">' + (bs ? 'Série' : esc(catName(st.cat)) + ' · Année') + '</span><h2 class="display">' + esc(bc.nom) + '</h2>' +
         (bs && bs.annees ? '<div class="row-meta"><span>' + esc(bs.annees) + '</span></div>' : '') +
