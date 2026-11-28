@@ -573,7 +573,15 @@ async function main() {
   await fs.copyFile('src/favicon.svg', `${OUT}/favicon.svg`);
   for (const f of ['favicon.ico', 'icon-192.png', 'apple-touch-icon.png']) await fs.copyFile(`src/icones/${f}`, `${OUT}/${f}`);
   // Pour les moteurs de recherche : robots.txt et plan du site (une seule adresse tant que les pages utilisent « # »)
-  await fs.writeFile(`${OUT}/robots.txt`, `User-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\n`);
+  // Adresses confiées aux fonctions Cloudflare (dossier functions) : toutes sauf l'accueil, les images et
+  // les icônes, servies directement. functions/[[path]].js renvoie les anciennes adresses vers l'accueil ;
+  // functions/video/[[path]].js sert les vidéos par morceaux (Safari).
+  await fs.writeFile(`${OUT}/_routes.json`, JSON.stringify({
+    version: 1,
+    include: ['/*'],
+    exclude: ['/', '/img/*', '/favicon.ico', '/favicon.svg', '/icon-192.png', '/apple-touch-icon.png', '/robots.txt', '/sitemap.xml'],
+  }, null, 2) + '\n');
+  await fs.writeFile(`${OUT}/robots.txt`,`User-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\n`);
   const today = new Date().toISOString().slice(0, 10);
   await fs.writeFile(`${OUT}/sitemap.xml`, `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>${siteUrl}/</loc><lastmod>${today}</lastmod></url>\n</urlset>\n`);
 
