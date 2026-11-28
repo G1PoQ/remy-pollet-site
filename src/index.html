@@ -3,6 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>
+/* Ancienne adresse (WordPress, lien Google, favori) : remypollet.com/oeuvres/, /biographie/…
+   Le site n'a qu'une page, servie à toutes les adresses ; ses images et vidéos sont cherchées à partir
+   de l'adresse affichée (img/o/…). Avant toute chose, on ramène donc l'adresse à la racine du site,
+   en ouvrant la partie correspondante quand on la reconnaît. */
+(function(){
+  var p = location.pathname;
+  if (p === '/' || !window.history || !history.replaceState) return;
+  var s = decodeURIComponent(p).toLowerCase(), h = location.hash;
+  if (!h) h = /biograph/.test(s) ? '#biographie' : /expo/.test(s) ? '#expositions' : /contact/.test(s) ? '#contact'
+    : /encre/.test(s) ? '#oeuvres/encres' : /dessin/.test(s) ? '#oeuvres/dessins' : /huile|toile/.test(s) ? '#oeuvres/huiles'
+    : /oeuvre|œuvre|galerie|serie|série|portfolio|travaux/.test(s) ? '#oeuvres' : '';
+  history.replaceState(null, '', '/' + location.search + h);
+})();
+</script>
 <style>
 /* Layout: a white-cube gallery wall. Works hang at their true relative scale; type stays quiet around them. */
 :root{
